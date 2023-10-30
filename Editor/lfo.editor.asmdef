@@ -1,0 +1,21 @@
+{
+    "name": "lfo.editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1ef1bebd92f2fe8468bfdc850b60bc5c"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Assembly-CSharp.dll",
+        "Newtonsoft.Json.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

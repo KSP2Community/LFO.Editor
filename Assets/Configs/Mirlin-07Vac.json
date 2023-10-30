@@ -1,0 +1,619 @@
+{
+  "partName": "Mirlin-07Vac",
+  "PlumeConfigs": {
+    "Plumes": [
+      {
+        "meshPath": "Cylinder",
+        "targetGameObject": "Nozzle",
+        "ShaderSettings": {
+          "ShaderName": "LFO/Volumetric (Additive)",
+          "ShaderParams": {
+            "_Brightness": 4.0,
+            "_ColorHigh": {
+              "r": 1.0,
+              "g": 0.6071428,
+              "b": 0.4214285,
+              "a": 1.0
+            },
+            "_ColorHighPosition": 0.559,
+            "_ColorMedium": {
+              "r": 1.49803925,
+              "g": 0.3137255,
+              "b": 0.0,
+              "a": 1.0
+            },
+            "_ColorMediumPosition": 0.369,
+            "_ColorLow": {
+              "r": 1.0,
+              "g": 0.348033071,
+              "b": 0.0,
+              "a": 1.0
+            },
+            "_ColorOffset": 2.0,
+            "_Radius": 0.85,
+            "_Hollow": 1.0,
+            "_StartFalloff": 1.0,
+            "_StartPosition": 0.217,
+            "_EndPosition": 0.229,
+            "_RadialFalloff": 0.0,
+            "_RadialFalloffPosition": 1.0,
+            "_LinearExpansion": 0.27,
+            "_QuadraticExpansion": 2.0,
+            "_YAnchorOffset": 0.228,
+            "_NoiseScale": 0.38,
+            "_NoiseTex": "3D Noise 2",
+            "_NoiseTexTilling": {
+              "x": 1.0,
+              "y": 0.25,
+              "z": 1.0,
+              "w": 0.0
+            },
+            "_Velocity": {
+              "x": 0.015,
+              "y": 10.0,
+              "z": -0.02,
+              "w": 0.0
+            },
+            "_Resolution": 0.0,
+            "_MinimumResolution": 0.0,
+            "_DensityLowerThreshold": 0.213,
+            "_DensityUpperThreshold": 0.293,
+            "_ExpansionDensityInvMultiplier": 0.0
+          }
+        },
+        "Position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -3.15317416
+        },
+        "Scale": {
+          "x": 4.44444466,
+          "y": 4.0,
+          "z": 4.4444437
+        },
+        "Rotation": {
+          "x": 90.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "FloatParams": [
+          {
+            "Value": 1.0,
+            "ParamName": "_Opacity",
+            "ParamHash": 412,
+            "UseAtmoCurve": false,
+            "AtmoCurveType": 0,
+            "AtmoMultiplierCurve": {
+              "keys": [],
+              "length": 0,
+              "preWrapMode": 4,
+              "postWrapMode": 4
+            },
+            "UseThrottleCurve": true,
+            "ThrottleCurveType": 1,
+            "ThrottleMultiplierCurve": {
+              "keys": [
+                {
+                  "time": 0.0,
+                  "value": 0.0,
+                  "inTangent": 2.0,
+                  "outTangent": 2.0,
+                  "inWeight": 0.0,
+                  "outWeight": 0.0,
+                  "weightedMode": 0,
+                  "tangentMode": 0
+                },
+                {
+                  "time": 1.0,
+                  "value": 1.0,
+                  "inTangent": 0.0,
+                  "outTangent": 0.0,
+                  "inWeight": 0.0,
+                  "outWeight": 0.0,
+                  "weightedMode": 0,
+                  "tangentMode": 0
+                }
+              ],
+              "length": 2,
+              "preWrapMode": 8,
+              "postWrapMode": 8
+            },
+            "isDirty": false
+          }
+        ]
+      },
+      {
+        "meshPath": "Cylinder",
+        "targetGameObject": "Body",
+        "ShaderSettings": {
+          "ShaderName": "LFO/Volumetric (Additive)",
+          "ShaderParams": {
+            "_Brightness": 4.0,
+            "_ColorHigh": {
+              "r": 1.0,
+              "g": 0.607843161,
+              "b": 0.419607848,
+              "a": 1.0
+            },
+            "_ColorHighPosition": 0.449,
+            "_ColorMedium": {
+              "r": 1.49803925,
+              "g": 0.3137255,
+              "b": 0.0,
+              "a": 1.0
+            },
+            "_ColorMediumPosition": 0.348,
+            "_ColorLow": {
+              "r": 1.0,
+              "g": 0.349019617,
+              "b": 0.0,
+              "a": 1.0
+            },
+            "_ColorOffset": 2.0,
+            "_Radius": 0.8,
+            "_Hollow": 1.0,
+            "_StartFalloff": 5.0,
+            "_StartPosition": 0.083,
+            "_EndPosition": 0.489,
+            "_RadialFalloff": 0.0,
+            "_RadialFalloffPosition": 1.0,
+            "_LinearExpansion": 0.01,
+            "_QuadraticExpansion": -0.06,
+            "_YAnchorOffset": 0.759,
+            "_NoiseScale": 0.2,
+            "_NoiseTex": "3D Noise 3",
+            "_Velocity": {
+              "x": 0.015,
+              "y": 30.0,
+              "z": -0.02,
+              "w": 0.0
+            },
+            "_ShapeNoiseWeights": {
+              "x": 0.0,
+              "y": 0.35,
+              "z": 1.0,
+              "w": 0.49
+            },
+            "_Resolution": 0.0,
+            "_MinimumResolution": 0.0,
+            "_DensityLowerThreshold": 0.183,
+            "_DensityUpperThreshold": 0.313,
+            "_ExpansionDensityInvMultiplier": 2.0,
+            "_Absolute": 0.0
+          }
+        },
+        "Position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -22.8231754
+        },
+        "Scale": {
+          "x": 11.1111116,
+          "y": 20.0,
+          "z": 11.1111088
+        },
+        "Rotation": {
+          "x": 90.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "FloatParams": [
+          {
+            "Value": 1.0,
+            "ParamName": "_Opacity",
+            "ParamHash": 412,
+            "UseAtmoCurve": false,
+            "AtmoCurveType": 0,
+            "AtmoMultiplierCurve": {
+              "keys": [],
+              "length": 0,
+              "preWrapMode": 4,
+              "postWrapMode": 4
+            },
+            "UseThrottleCurve": true,
+            "ThrottleCurveType": 1,
+            "ThrottleMultiplierCurve": {
+              "keys": [
+                {
+                  "time": 0.0,
+                  "value": 0.0,
+                  "inTangent": 2.0,
+                  "outTangent": 2.0,
+                  "inWeight": 0.0,
+                  "outWeight": 0.0,
+                  "weightedMode": 0,
+                  "tangentMode": 0
+                },
+                {
+                  "time": 1.0,
+                  "value": 1.0,
+                  "inTangent": 0.0,
+                  "outTangent": 0.0,
+                  "inWeight": 0.0,
+                  "outWeight": 0.0,
+                  "weightedMode": 0,
+                  "tangentMode": 0
+                }
+              ],
+              "length": 2,
+              "preWrapMode": 8,
+              "postWrapMode": 8
+            },
+            "isDirty": false
+          }
+        ]
+      }
+    ],
+    "Nozzle": [
+      {
+        "meshPath": "Cylinder",
+        "targetGameObject": "Soot",
+        "ShaderSettings": {
+          "ShaderName": "LFO/Volumetric (Additive)",
+          "ShaderParams": {
+            "_Brightness": 4.0,
+            "_ColorHigh": {
+              "r": 0.0,
+              "g": 0.0,
+              "b": 0.0,
+              "a": 1.0
+            },
+            "_ColorMedium": {
+              "r": 0.0,
+              "g": 0.0,
+              "b": 0.0,
+              "a": 1.0
+            },
+            "_ColorMediumPosition": 0.594,
+            "_ColorLow": {
+              "r": 0.0,
+              "g": 0.0,
+              "b": 0.0,
+              "a": 1.0
+            },
+            "_ColorOffset": 2.0,
+            "_Radius": 0.846,
+            "_Hollow": 1.0,
+            "_InnerRadius": 0.796,
+            "_StartPosition": 0.0,
+            "_Falloff": 1.8,
+            "_EndPosition": 1.0,
+            "_RadialFalloff": 0.0,
+            "_RadialFalloffPosition": 1.0,
+            "_LinearExpansion": 0.29,
+            "_QuadraticExpansion": 2.0,
+            "_Noise": 1.187,
+            "_NoiseFresnel": 0.359,
+            "_NoiseScale": 0.74,
+            "_NoiseTex": "3D Noise 2",
+            "_NoiseTexTilling": {
+              "x": 1.0,
+              "y": 0.2,
+              "z": 1.0,
+              "w": 0.0
+            },
+            "_Velocity": {
+              "x": 0.015,
+              "y": 5.0,
+              "z": -0.02,
+              "w": 0.0
+            },
+            "_ShapeNoiseWeights": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 1.0,
+              "w": 1.0
+            },
+            "_MinimumResolution": 0.0,
+            "_DensityLowerThreshold": 0.173,
+            "_DensityUpperThreshold": 0.333,
+            "_ExpansionDensityInvMultiplier": 0.0,
+            "_Absolute": 0.0
+          }
+        },
+        "Position": {
+          "x": 0.0,
+          "y": -0.135000959,
+          "z": 0.0
+        },
+        "Scale": {
+          "x": 1.50000024,
+          "y": 1.0,
+          "z": 1.5
+        },
+        "Rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "FloatParams": [
+          {
+            "Value": 1.0,
+            "ParamName": "_Opacity",
+            "ParamHash": 412,
+            "UseAtmoCurve": false,
+            "AtmoCurveType": 0,
+            "AtmoMultiplierCurve": {
+              "keys": [],
+              "length": 0,
+              "preWrapMode": 4,
+              "postWrapMode": 4
+            },
+            "UseThrottleCurve": true,
+            "ThrottleCurveType": 1,
+            "ThrottleMultiplierCurve": {
+              "keys": [
+                {
+                  "time": 0.0,
+                  "value": 0.0,
+                  "inTangent": 2.0,
+                  "outTangent": 2.0,
+                  "inWeight": 0.0,
+                  "outWeight": 0.0,
+                  "weightedMode": 0,
+                  "tangentMode": 0
+                },
+                {
+                  "time": 1.0,
+                  "value": 1.0,
+                  "inTangent": 0.0,
+                  "outTangent": 0.0,
+                  "inWeight": 0.0,
+                  "outWeight": 0.0,
+                  "weightedMode": 0,
+                  "tangentMode": 0
+                }
+              ],
+              "length": 2,
+              "preWrapMode": 8,
+              "postWrapMode": 8
+            },
+            "isDirty": false
+          }
+        ]
+      }
+    ],
+    "Body": [
+      {
+        "meshPath": "Cylinder",
+        "targetGameObject": "Scatter",
+        "ShaderSettings": {
+          "ShaderName": "LFO/Volumetric (Additive)",
+          "ShaderParams": {
+            "_Brightness": 2.0,
+            "_ColorHigh": {
+              "r": 1.0,
+              "g": 0.607843161,
+              "b": 0.419607848,
+              "a": 1.0
+            },
+            "_ColorMedium": {
+              "r": 1.49803925,
+              "g": 0.3137255,
+              "b": 0.0,
+              "a": 1.0
+            },
+            "_ColorMediumPosition": 0.661,
+            "_ColorLow": {
+              "r": 1.0,
+              "g": 0.349019617,
+              "b": 0.0,
+              "a": 1.0
+            },
+            "_ColorLowPosition": 0.245,
+            "_ColorOffset": 2.0,
+            "_Radius": 1.2,
+            "_StartFalloff": 1.0,
+            "_StartPosition": 0.0,
+            "_Falloff": 5.0,
+            "_EndPosition": 0.199,
+            "_RadialFalloff": 0.0,
+            "_RadialFalloffPosition": 1.0,
+            "_QuadraticExpansion": -0.08,
+            "_YAnchorOffset": -0.006,
+            "_Noise": 1.831,
+            "_NoiseScale": 0.15,
+            "_NoiseTex": "3D Noise 2",
+            "_NoiseTexTilling": {
+              "x": 1.0,
+              "y": 0.5,
+              "z": 1.0,
+              "w": 0.0
+            },
+            "_Velocity": {
+              "x": 0.015,
+              "y": 30.0,
+              "z": -0.02,
+              "w": 0.0
+            },
+            "_ShapeNoiseWeights": {
+              "x": 1.0,
+              "y": 0.2655,
+              "z": 1.0,
+              "w": 1.0
+            },
+            "_MinimumResolution": 0.0,
+            "_DensityLowerThreshold": 0.145,
+            "_DensityUpperThreshold": 0.257,
+            "_ExpansionDensityInvMultiplier": 2.0,
+            "_Absolute": 0.0
+          }
+        },
+        "Position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "Scale": {
+          "x": 2.0,
+          "y": 1.0,
+          "z": 2.0
+        },
+        "Rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "FloatParams": [
+          {
+            "Value": 1.0,
+            "ParamName": "_Opacity",
+            "ParamHash": 412,
+            "UseAtmoCurve": false,
+            "AtmoCurveType": 0,
+            "AtmoMultiplierCurve": {
+              "keys": [],
+              "length": 0,
+              "preWrapMode": 4,
+              "postWrapMode": 4
+            },
+            "UseThrottleCurve": true,
+            "ThrottleCurveType": 1,
+            "ThrottleMultiplierCurve": {
+              "keys": [
+                {
+                  "time": 0.0,
+                  "value": 0.0,
+                  "inTangent": 2.0,
+                  "outTangent": 2.0,
+                  "inWeight": 0.0,
+                  "outWeight": 0.0,
+                  "weightedMode": 0,
+                  "tangentMode": 0
+                },
+                {
+                  "time": 1.0,
+                  "value": 1.0,
+                  "inTangent": 0.0,
+                  "outTangent": 0.0,
+                  "inWeight": 0.0,
+                  "outWeight": 0.0,
+                  "weightedMode": 0,
+                  "tangentMode": 0
+                }
+              ],
+              "length": 2,
+              "preWrapMode": 8,
+              "postWrapMode": 8
+            },
+            "isDirty": false
+          }
+        ]
+      },
+      {
+        "meshPath": "Cylinder",
+        "targetGameObject": "Noise",
+        "ShaderSettings": {
+          "ShaderName": "LFO/Volumetric (Additive)",
+          "ShaderParams": {
+            "_Brightness": 3.0,
+            "_ColorHigh": {
+              "r": 1.0,
+              "g": 0.607843161,
+              "b": 0.419607848,
+              "a": 1.0
+            },
+            "_ColorHighPosition": 0.449,
+            "_ColorMedium": {
+              "r": 1.49803925,
+              "g": 0.3137255,
+              "b": 0.0,
+              "a": 1.0
+            },
+            "_ColorMediumPosition": 0.348,
+            "_ColorLow": {
+              "r": 1.0,
+              "g": 0.349019617,
+              "b": 0.0,
+              "a": 1.0
+            },
+            "_ColorOffset": 2.0,
+            "_Radius": 1.1,
+            "_StartFalloff": 1.0,
+            "_StartPosition": 0.289,
+            "_EndPosition": 0.359,
+            "_RadialFalloff": 0.0,
+            "_RadialFalloffPosition": 1.0,
+            "_LinearExpansion": 0.01,
+            "_QuadraticExpansion": -0.06,
+            "_YAnchorOffset": 0.759,
+            "_NoiseScale": 0.2,
+            "_NoiseTex": "3D Noise",
+            "_Velocity": {
+              "x": 0.015,
+              "y": 30.0,
+              "z": -0.02,
+              "w": 0.0
+            },
+            "_Resolution": 4.0,
+            "_MinimumResolution": 0.0,
+            "_DensityLowerThreshold": 0.165,
+            "_DensityUpperThreshold": 0.265,
+            "_ExpansionDensityInvMultiplier": 2.0,
+            "_Absolute": 0.0
+          }
+        },
+        "Position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "Scale": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "Rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "FloatParams": [
+          {
+            "Value": 1.0,
+            "ParamName": "_Opacity",
+            "ParamHash": 412,
+            "UseAtmoCurve": false,
+            "AtmoCurveType": 0,
+            "AtmoMultiplierCurve": {
+              "keys": [],
+              "length": 0,
+              "preWrapMode": 4,
+              "postWrapMode": 4
+            },
+            "UseThrottleCurve": true,
+            "ThrottleCurveType": 1,
+            "ThrottleMultiplierCurve": {
+              "keys": [
+                {
+                  "time": 0.0,
+                  "value": 0.0,
+                  "inTangent": 2.0,
+                  "outTangent": 2.0,
+                  "inWeight": 0.0,
+                  "outWeight": 0.0,
+                  "weightedMode": 0,
+                  "tangentMode": 0
+                },
+                {
+                  "time": 1.0,
+                  "value": 1.0,
+                  "inTangent": 0.0,
+                  "outTangent": 0.0,
+                  "inWeight": 0.0,
+                  "outWeight": 0.0,
+                  "weightedMode": 0,
+                  "tangentMode": 0
+                }
+              ],
+              "length": 2,
+              "preWrapMode": 8,
+              "postWrapMode": 8
+            },
+            "isDirty": false
+          }
+        ]
+      }
+    ]
+  }
+}
