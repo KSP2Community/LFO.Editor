@@ -12,7 +12,7 @@ namespace LuxsFlamesAndOrnaments.Settings
         public string targetGameObject;//Name that the gameObject will have
         public ShaderConfig ShaderSettings = new();
         public Vector3 Position, Scale = Vector3.one, Rotation;
-        public List<FloatParam> FloatParams = new();
+        public List<FloatParam> FloatParams;
 
         public static string Serialize(List<PlumeConfig> config)
         {

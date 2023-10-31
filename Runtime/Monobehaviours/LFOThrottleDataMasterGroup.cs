@@ -1,10 +1,7 @@
 ﻿using KSP.Game;
-using KSP.Messages.PropertyWatchers;
-using RTG;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace LuxsFlamesAndOrnaments.Monobehaviours

@@ -5,7 +5,7 @@ using UnityEngine;
 public class FloatParam : LFOParam
 {
     public float Value;
-    public FloatParam() : base()
+    public FloatParam()
     {
         Value = float.MinValue;
     }

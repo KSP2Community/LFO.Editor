@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -23,7 +23,7 @@ namespace LuxsFlamesAndOrnaments.Settings
             Shader shader = LFO.GetShader(ShaderName);
             if (shader is null)
             {
-                // LogError($"Couldn't find shader {ShaderName}");
+                Debug.LogError($"Couldn't find shader {ShaderName}");
                 return null;
             }
             Material material = new(shader);
@@ -49,6 +49,28 @@ namespace LuxsFlamesAndOrnaments.Settings
                         break;
                     case int integer:
                         material.SetFloat(kvp.Key, integer);
+                        break;
+                    case string textureName:
+                        #if !UNITY_EDITOR
+                        if (!Application.isEditor)
+                        {
+                            Texture texture;
+                            try
+                            {
+                                if (!SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.NOISES_PATH + textureName + ".png", out texture) &&
+                                    !SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.NOISES_PATH + textureName + ".asset", out texture) &&
+                                    !SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.PROFILES_PATH + textureName + ".png", out texture))
+                                {
+                                    throw new NullReferenceException($"Couldn't find texture with path {"lfo/resources/textures" + textureName}. Make sure the textures have the right name!");
+                                }
+                                material.SetTexture(kvp.Key, texture);
+                            }
+                            catch(Exception e)
+                            {
+                                Debug.LogError(e.Message);
+                            }
+                        }
+                        #endif
                         break;
                 }
             }

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 using KSP.Game;
 using LuxsFlamesAndOrnaments.Settings;
 using LuxsFlamesAndOrnaments;
-using KSP;
-using KSP.Modules;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Renderer))]
@@ -20,8 +17,10 @@ public class LFOThrottleData : KerbalMonoBehaviour, IEngineFXData
         set => renderer.material = value;
     }
 
-    public PlumeConfig config = new();
+    public PlumeConfig config;
+
     public List<FloatParam> FloatParams => config.FloatParams;
+
     public string partName = "";
     public bool IsRCS;
 
@@ -41,6 +40,21 @@ public class LFOThrottleData : KerbalMonoBehaviour, IEngineFXData
         renderer = GetComponent<Renderer>();
         if(name.Contains("RCS"))
             IsRCS = true;
+    }
+
+    void Start()
+    {
+        //var engineComp = this.getcomponentpar<Module_Engine>(true);
+        //string partName = (engineComp.PartBackingMode == KSP.Sim.Definitions.PartBehaviourModule.PartBackingModes.OAB) ? engineComp.OABPart.PartName : engineComp.part.name;
+
+        if (!IsRCS)
+        {
+            if (string.IsNullOrEmpty(partName) || !LFO.TryGetPlumeConfig(partName, this.name, out config))
+            {
+                enabled = false;
+                return;
+            }
+        }
     }
 
     void OnEnable()
