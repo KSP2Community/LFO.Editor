@@ -79,7 +79,8 @@ namespace LFO.Editor
                 if (serPro != null)
                     EditorGUILayout.PropertyField(serPro);
             }
-            //base.OnInspectorGUI();
+
+            serializedObject.ApplyModifiedProperties();
         }
 
 
