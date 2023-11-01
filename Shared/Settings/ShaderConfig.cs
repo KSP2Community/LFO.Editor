@@ -57,9 +57,9 @@ namespace LFO.Shared.Settings
                             Texture texture;
                             try
                             {
-                                if (!SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.NOISES_PATH + textureName + ".png", out texture) &&
-                                    !SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.NOISES_PATH + textureName + ".asset", out texture) &&
-                                    !SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.PROFILES_PATH + textureName + ".png", out texture))
+                                if (!SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.NoisesPath + textureName + ".png", out texture) &&
+                                    !SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.NoisesPath + textureName + ".asset", out texture) &&
+                                    !SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.ProfilesPath + textureName + ".png", out texture))
                                 {
                                     throw new NullReferenceException($"Couldn't find texture with name {textureName}. Make sure the textures have the right name!");
                                 }

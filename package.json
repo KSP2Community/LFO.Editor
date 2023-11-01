@@ -1,6 +1,6 @@
 {
   "name": "lfo.editor",
-  "version": "0.10.0-alpha2",
+  "version": "0.10.0-alpha1",
   "displayName": "LFO Editor Tools",
   "description": "This package contains tools for the creation of custom engine plumes for KSP2.",
   "unity": "2022.3",
