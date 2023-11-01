@@ -1,67 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
-using LuxsFlamesAndOrnaments.Settings;
+using LFO.Shared.Settings;
 using UnityEngine;
 
-namespace LuxsFlamesAndOrnaments
+namespace LFO.Shared
 {
     public class LFO
     {
-        public const string RESOURCES_PATH = "lfo/lfo-resources/lfo/";
-        public const string MESHES_PATH = RESOURCES_PATH + "meshes/";
-        public const string NOISES_PATH = RESOURCES_PATH + "noise/";
-        public const string TEXTURES_PATH = RESOURCES_PATH + "textures/";
-        public const string PROFILES_PATH = RESOURCES_PATH + "profiles/";
-        public const string SHADERS_PATH = RESOURCES_PATH + "shaders/";
+        public const string ResourcesPath = "lfo/lfo-resources/packages/lfo.editor/assets/";
+        public const string MeshesPath = ResourcesPath + "meshes/";
+        public const string NoisesPath = ResourcesPath + "noise/";
+        public const string TexturesPath = ResourcesPath + "textures/";
+        public const string ProfilesPath = ResourcesPath + "profiles/";
+        public const string ShadersPath = ResourcesPath + "shaders/";
 
-        public static LFO Instance
-        {
-            get
-            {
-                if (_instance == null)
-                    new LFO();
-                return _instance;
-            }
-        }
+        public static LFO Instance => _instance ??= new LFO();
 
 
         private static LFO _instance;
 
-        public Dictionary<string, LFOConfig> PartNameToConfigDict = new();
-        public Dictionary<string, Dictionary<string, PlumeConfig>> GameObjectToPlumeDict = new();
-        public Dictionary<string, Shader> LoadedShaders = new();
+        public readonly Dictionary<string, LfoConfig> PartNameToConfigDict = new();
+        public readonly Dictionary<string, Dictionary<string, PlumeConfig>> GameObjectToPlumeDict = new();
+        public readonly Dictionary<string, Shader> LoadedShaders = new();
 
         public LFO()
         {
             _instance = this;
         }
 
-        public static void RegisterLFOConfig(string partName, LFOConfig config)
+        public static void RegisterLFOConfig(string partName, LfoConfig config)
         {
-            if (!Instance.PartNameToConfigDict.ContainsKey(partName))
-            {
-                Instance.PartNameToConfigDict.Add(partName, new());
-            }
+            Instance.PartNameToConfigDict.TryAdd(partName, new LfoConfig());
+
             if (!Instance.GameObjectToPlumeDict.ContainsKey(partName))
             {
-                Instance.GameObjectToPlumeDict.Add(partName, new());
+                Instance.GameObjectToPlumeDict.Add(partName, new Dictionary<string, PlumeConfig>());
             }
 
             Instance.PartNameToConfigDict[partName] = config;
         }
 
-        public static bool TryGetConfig(string partName, out LFOConfig config)
+        public static bool TryGetConfig(string partName, out LfoConfig config)
         {
             if (Instance.PartNameToConfigDict.ContainsKey(partName))
             {
                 config = Instance.PartNameToConfigDict[partName];
                 return true;
             }
-            else
-            {
-                config = null;
-                return false;
-            }
+
+            config = null;
+            return false;
         }
 
         public static bool TryGetMesh(string meshPath, out Mesh mesh)
@@ -95,22 +83,24 @@ namespace LuxsFlamesAndOrnaments
         public static Shader GetShader(string name)
         {
             if (Instance.LoadedShaders.ContainsKey(name))
+            {
                 return Instance.LoadedShaders[name];
-            else
-                throw new IndexOutOfRangeException($"[LFO] Shader {name} is not present on internal shader collection. Check logs for more information.");
+            }
+
+            throw new IndexOutOfRangeException($"[LFO] Shader {name} is not present in the internal shader collection. Check logs for more information.");
         }
 
-        internal static void RegisterPlumeConfig(string partName, string ID, PlumeConfig config)
+        internal static void RegisterPlumeConfig(string partName, string id, PlumeConfig config)
         {
             if (Instance.GameObjectToPlumeDict.ContainsKey(partName))
             {
-                if (Instance.GameObjectToPlumeDict[partName].ContainsKey(ID))
+                if (Instance.GameObjectToPlumeDict[partName].ContainsKey(id))
                 {
-                    Instance.GameObjectToPlumeDict[partName][ID] = config;
+                    Instance.GameObjectToPlumeDict[partName][id] = config;
                 }
                 else
                 {
-                    Instance.GameObjectToPlumeDict[partName].Add(ID, config);
+                    Instance.GameObjectToPlumeDict[partName].Add(id, config);
                 }
             }
             else
@@ -118,16 +108,16 @@ namespace LuxsFlamesAndOrnaments
                 Debug.LogWarning($"{partName} has no registered plume");
             }
         }
-        internal static bool TryGetPlumeConfig(string partName, string ID, out PlumeConfig config)
+        internal static bool TryGetPlumeConfig(string partName, string id, out PlumeConfig config)
         {
             if (Instance.GameObjectToPlumeDict.ContainsKey(partName))
-                return Instance.GameObjectToPlumeDict[partName].TryGetValue(ID, out config);
-            else
             {
-                Debug.LogWarning($"{partName} has no registered plume");
-                config = null;
-                return false;
+                return Instance.GameObjectToPlumeDict[partName].TryGetValue(id, out config);
             }
+
+            Debug.LogWarning($"{partName} has no registered plume");
+            config = null;
+            return false;
         }
     }
 }

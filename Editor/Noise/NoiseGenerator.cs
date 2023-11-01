@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 namespace LFO.Editor.Noise
 {
     public class NoiseGenerator : MonoBehaviour
     {
-        const int computeThreadGroupSize = 8;
-        public const string detailNoiseName = "DetailNoise";
-        public const string shapeNoiseName = "ShapeNoise";
+        private const int ComputeThreadGroupSize = 8;
+        private const string DetailNoiseName = "DetailNoise";
+        private const string ShapeNoiseName = "ShapeNoise";
 
         public enum CloudNoiseType
         {
@@ -23,127 +24,121 @@ namespace LFO.Editor.Noise
             A
         }
 
-        [Header("Editor Settings")] public CloudNoiseType activeTextureType;
-        public TextureChannel activeChannel;
-        public bool autoUpdate;
-        public bool logComputeTime;
+        [Header("Editor Settings")] public CloudNoiseType ActiveTextureType;
+        public TextureChannel ActiveChannel;
+        public bool AutoUpdate;
+        public bool LogComputeTime;
 
-        [Header("Noise Settings")] public int shapeResolution = 132;
-        public int detailResolution = 32;
+        [Header("Noise Settings")] public int ShapeResolution = 132;
+        public int DetailResolution = 32;
 
-        public WorleyNoiseSettings[] shapeSettings;
-        public WorleyNoiseSettings[] detailSettings;
-        public ComputeShader noiseCompute;
-        public ComputeShader copy;
+        public WorleyNoiseSettings[] ShapeSettings;
+        public WorleyNoiseSettings[] DetailSettings;
+        public ComputeShader NoiseCompute;
+        public ComputeShader Copy;
 
-        [Header("Viewer Settings")] public bool viewerEnabled;
-        public bool viewerGreyscale = true;
-        public bool viewerShowAllChannels;
-        [Range(0, 1)] public float viewerSliceDepth;
-        [Range(1, 5)] public float viewerTileAmount = 1;
-        [Range(0, 1)] public float viewerSize = 1;
+        [Header("Viewer Settings")] public bool ViewerEnabled;
+        public bool ViewerGreyscale = true;
+        public bool ViewerShowAllChannels;
+        [Range(0, 1)] public float ViewerSliceDepth;
+        [Range(1, 5)] public float ViewerTileAmount = 1;
+        [Range(0, 1)] public float ViewerSize = 1;
 
         // Internal
-        List<ComputeBuffer> buffersToRelease;
-        bool updateNoise;
+        private List<ComputeBuffer> _buffersToRelease;
+        private bool _updateNoise;
 
-        [HideInInspector] public bool showSettingsEditor = true;
-        [SerializeField, HideInInspector] public RenderTexture shapeTexture;
-        [SerializeField, HideInInspector] public RenderTexture detailTexture;
+        [HideInInspector] public bool ShowSettingsEditor = true;
+        [SerializeField, HideInInspector] public RenderTexture ShapeTexture;
+        [SerializeField, HideInInspector] public RenderTexture DetailTexture;
 
-        public void UpdateNoise()
+        private void UpdateNoise()
         {
             ValidateParamaters();
-            CreateTexture(ref shapeTexture, shapeResolution, shapeNoiseName);
-            CreateTexture(ref detailTexture, detailResolution, detailNoiseName);
+            CreateTexture(ref ShapeTexture, ShapeResolution, ShapeNoiseName);
+            CreateTexture(ref DetailTexture, DetailResolution, DetailNoiseName);
 
-            if (updateNoise && noiseCompute)
+            if (!_updateNoise || !NoiseCompute)
             {
-                var timer = System.Diagnostics.Stopwatch.StartNew();
+                return;
+            }
 
-                updateNoise = false;
-                WorleyNoiseSettings activeSettings = ActiveSettings;
-                if (activeSettings == null)
-                {
-                    return;
-                }
+            var timer = System.Diagnostics.Stopwatch.StartNew();
 
-                buffersToRelease = new List<ComputeBuffer>();
+            _updateNoise = false;
+            WorleyNoiseSettings activeSettings = ActiveSettings;
+            if (activeSettings == null)
+            {
+                return;
+            }
 
-                int activeTextureResolution = ActiveTexture.width;
+            _buffersToRelease = new List<ComputeBuffer>();
 
-                // Set values:
-                noiseCompute.SetFloat("persistence", activeSettings.persistence);
-                noiseCompute.SetInt("resolution", activeTextureResolution);
-                noiseCompute.SetVector("channelMask", ChannelMask);
+            int activeTextureResolution = ActiveTexture.width;
 
-                // Set noise gen kernel data:
-                noiseCompute.SetTexture(0, "Result", ActiveTexture);
-                var minMaxBuffer = CreateBuffer(new int[] { int.MaxValue, 0 }, sizeof(int), "minMax", 0);
-                UpdateWorley(ActiveSettings);
-                noiseCompute.SetTexture(0, "Result", ActiveTexture);
-                //var noiseValuesBuffer = CreateBuffer (activeNoiseValues, sizeof (float) * 4, "values");
+            // Set values:
+            NoiseCompute.SetFloat("persistence", activeSettings.Persistence);
+            NoiseCompute.SetInt("resolution", activeTextureResolution);
+            NoiseCompute.SetVector("channelMask", ChannelMask);
 
-                // Dispatch noise gen kernel
-                int numThreadGroups = Mathf.CeilToInt(activeTextureResolution / (float)computeThreadGroupSize);
-                noiseCompute.Dispatch(0, numThreadGroups, numThreadGroups, numThreadGroups);
+            // Set noise gen kernel data:
+            NoiseCompute.SetTexture(0, "Result", ActiveTexture);
+            var minMaxBuffer = CreateBuffer(new int[] { int.MaxValue, 0 }, sizeof(int), "minMax", 0);
+            UpdateWorley(ActiveSettings);
+            NoiseCompute.SetTexture(0, "Result", ActiveTexture);
+            //var noiseValuesBuffer = CreateBuffer (activeNoiseValues, sizeof (float) * 4, "values");
 
-                // Set normalization kernel data:
-                noiseCompute.SetBuffer(1, "minMax", minMaxBuffer);
-                noiseCompute.SetTexture(1, "Result", ActiveTexture);
-                // Dispatch normalization kernel
-                noiseCompute.Dispatch(1, numThreadGroups, numThreadGroups, numThreadGroups);
+            // Dispatch noise gen kernel
+            int numThreadGroups = Mathf.CeilToInt(activeTextureResolution / (float)ComputeThreadGroupSize);
+            NoiseCompute.Dispatch(0, numThreadGroups, numThreadGroups, numThreadGroups);
 
-                if (logComputeTime)
-                {
-                    // Get minmax data just to force main thread to wait until compute shaders are finished.
-                    // This allows us to measure the execution time.
-                    var minMax = new int[2];
-                    minMaxBuffer.GetData(minMax);
+            // Set normalization kernel data:
+            NoiseCompute.SetBuffer(1, "minMax", minMaxBuffer);
+            NoiseCompute.SetTexture(1, "Result", ActiveTexture);
+            // Dispatch normalization kernel
+            NoiseCompute.Dispatch(1, numThreadGroups, numThreadGroups, numThreadGroups);
 
-                    Debug.Log($"Noise Generation: {timer.ElapsedMilliseconds}ms");
-                }
+            if (LogComputeTime)
+            {
+                // Get minmax data just to force main thread to wait until compute shaders are finished.
+                // This allows us to measure the execution time.
+                var minMax = new int[2];
+                minMaxBuffer.GetData(minMax);
 
-                // Release buffers
-                foreach (var buffer in buffersToRelease)
-                {
-                    buffer.Release();
-                }
+                Debug.Log($"Noise Generation: {timer.ElapsedMilliseconds}ms");
+            }
+
+            // Release buffers
+            foreach (var buffer in _buffersToRelease)
+            {
+                buffer.Release();
             }
         }
 
-        public void Load(string saveName, RenderTexture target)
+        private void Load(string saveName, RenderTexture target)
         {
             string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
             saveName = sceneName + "_" + saveName;
-            Texture3D savedTex = (Texture3D)Resources.Load(saveName);
+            var savedTex = (Texture3D)Resources.Load(saveName);
             if (savedTex != null && savedTex.width == target.width)
             {
-                copy.SetTexture(0, "tex", savedTex);
-                copy.SetTexture(0, "renderTex", target);
+                Copy.SetTexture(0, "tex", savedTex);
+                Copy.SetTexture(0, "renderTex", target);
                 int numThreadGroups = Mathf.CeilToInt(savedTex.width / 8f);
-                copy.Dispatch(0, numThreadGroups, numThreadGroups, numThreadGroups);
+                Copy.Dispatch(0, numThreadGroups, numThreadGroups, numThreadGroups);
             }
         }
 
-        public RenderTexture ActiveTexture
-        {
-            get { return (activeTextureType == CloudNoiseType.Shape) ? shapeTexture : detailTexture; }
-        }
+        public RenderTexture ActiveTexture => ActiveTextureType == CloudNoiseType.Shape ? ShapeTexture : DetailTexture;
 
         public WorleyNoiseSettings ActiveSettings
         {
             get
             {
                 WorleyNoiseSettings[] settings =
-                    (activeTextureType == CloudNoiseType.Shape) ? shapeSettings : detailSettings;
-                int activeChannelIndex = (int)activeChannel;
-                if (activeChannelIndex >= settings.Length)
-                {
-                    return null;
-                }
-
-                return settings[activeChannelIndex];
+                    ActiveTextureType == CloudNoiseType.Shape ? ShapeSettings : DetailSettings;
+                int activeChannelIndex = (int)ActiveChannel;
+                return activeChannelIndex >= settings.Length ? null : settings[activeChannelIndex];
             }
         }
 
@@ -151,31 +146,31 @@ namespace LFO.Editor.Noise
         {
             get
             {
-                Vector4 channelWeight = new Vector4(
-                    (activeChannel == NoiseGenerator.TextureChannel.R) ? 1 : 0,
-                    (activeChannel == NoiseGenerator.TextureChannel.G) ? 1 : 0,
-                    (activeChannel == NoiseGenerator.TextureChannel.B) ? 1 : 0,
-                    (activeChannel == NoiseGenerator.TextureChannel.A) ? 1 : 0
+                var channelWeight = new Vector4(
+                    ActiveChannel == TextureChannel.R ? 1 : 0,
+                    ActiveChannel == TextureChannel.G ? 1 : 0,
+                    ActiveChannel == TextureChannel.B ? 1 : 0,
+                    ActiveChannel == TextureChannel.A ? 1 : 0
                 );
                 return channelWeight;
             }
         }
 
-        void UpdateWorley(WorleyNoiseSettings settings)
+        private void UpdateWorley(WorleyNoiseSettings settings)
         {
-            var prng = new System.Random(settings.seed);
-            CreateWorleyPointsBuffer(prng, settings.numDivisionsA, "pointsA");
-            CreateWorleyPointsBuffer(prng, settings.numDivisionsB, "pointsB");
-            CreateWorleyPointsBuffer(prng, settings.numDivisionsC, "pointsC");
+            var prng = new System.Random(settings.Seed);
+            CreateWorleyPointsBuffer(prng, settings.NumDivisionsA, "pointsA");
+            CreateWorleyPointsBuffer(prng, settings.NumDivisionsB, "pointsB");
+            CreateWorleyPointsBuffer(prng, settings.NumDivisionsC, "pointsC");
 
-            noiseCompute.SetInt("numCellsA", settings.numDivisionsA);
-            noiseCompute.SetInt("numCellsB", settings.numDivisionsB);
-            noiseCompute.SetInt("numCellsC", settings.numDivisionsC);
-            noiseCompute.SetBool("invertNoise", settings.invert);
-            noiseCompute.SetInt("tile", settings.tile);
+            NoiseCompute.SetInt("numCellsA", settings.NumDivisionsA);
+            NoiseCompute.SetInt("numCellsB", settings.NumDivisionsB);
+            NoiseCompute.SetInt("numCellsC", settings.NumDivisionsC);
+            NoiseCompute.SetBool("invertNoise", settings.Invert);
+            NoiseCompute.SetInt("tile", settings.Tile);
         }
 
-        void CreateWorleyPointsBuffer(System.Random prng, int numCellsPerAxis, string bufferName)
+        private void CreateWorleyPointsBuffer(System.Random prng, int numCellsPerAxis, string bufferName)
         {
             var points = new Vector3[numCellsPerAxis * numCellsPerAxis * numCellsPerAxis];
             float cellSize = 1f / numCellsPerAxis;
@@ -186,11 +181,11 @@ namespace LFO.Editor.Noise
                 {
                     for (int z = 0; z < numCellsPerAxis; z++)
                     {
-                        float randomX = (float)prng.NextDouble();
-                        float randomY = (float)prng.NextDouble();
-                        float randomZ = (float)prng.NextDouble();
-                        Vector3 randomOffset = new Vector3(randomX, randomY, randomZ) * cellSize;
-                        Vector3 cellCorner = new Vector3(x, y, z) * cellSize;
+                        var randomX = (float)prng.NextDouble();
+                        var randomY = (float)prng.NextDouble();
+                        var randomZ = (float)prng.NextDouble();
+                        var randomOffset = new Vector3(randomX, randomY, randomZ) * cellSize;
+                        var cellCorner = new Vector3(x, y, z) * cellSize;
 
                         int index = x + numCellsPerAxis * (y + z * numCellsPerAxis);
                         points[index] = cellCorner + randomOffset;
@@ -202,21 +197,24 @@ namespace LFO.Editor.Noise
         }
 
         // Create buffer with some data, and set in shader. Also add to list of buffers to be released
-        ComputeBuffer CreateBuffer(System.Array data, int stride, string bufferName, int kernel = 0)
+        private ComputeBuffer CreateBuffer(System.Array data, int stride, string bufferName, int kernel = 0)
         {
             var buffer = new ComputeBuffer(data.Length, stride, ComputeBufferType.Structured);
-            buffersToRelease.Add(buffer);
+            _buffersToRelease.Add(buffer);
             buffer.SetData(data);
-            noiseCompute.SetBuffer(kernel, bufferName, buffer);
+            NoiseCompute.SetBuffer(kernel, bufferName, buffer);
             return buffer;
         }
 
-        void CreateTexture(ref RenderTexture texture, int resolution, string name)
+        private void CreateTexture(ref RenderTexture texture, int resolution, string textureName)
         {
-            var format = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_UNorm;
-            if (texture == null || !texture.IsCreated() || texture.width != resolution ||
+            const GraphicsFormat format = GraphicsFormat.R16G16B16A16_UNorm;
+            if (texture == null ||
+                !texture.IsCreated() ||
+                texture.width != resolution ||
                 texture.height != resolution ||
-                texture.volumeDepth != resolution || texture.graphicsFormat != format)
+                texture.volumeDepth != resolution ||
+                texture.graphicsFormat != format)
             {
                 //Debug.Log ("Create tex: update noise: " + updateNoise);
                 if (texture != null)
@@ -224,15 +222,17 @@ namespace LFO.Editor.Noise
                     texture.Release();
                 }
 
-                texture = new RenderTexture(resolution, resolution, 0);
-                texture.graphicsFormat = format;
-                texture.volumeDepth = resolution;
-                texture.enableRandomWrite = true;
-                texture.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
-                texture.name = name;
+                texture = new RenderTexture(resolution, resolution, 0)
+                {
+                    graphicsFormat = format,
+                    volumeDepth = resolution,
+                    enableRandomWrite = true,
+                    dimension = UnityEngine.Rendering.TextureDimension.Tex3D,
+                    name = textureName
+                };
 
                 texture.Create();
-                Load(name, texture);
+                Load(textureName, texture);
             }
 
             texture.wrapMode = TextureWrapMode.Repeat;
@@ -241,26 +241,22 @@ namespace LFO.Editor.Noise
 
         public void ManualUpdate()
         {
-            updateNoise = true;
+            _updateNoise = true;
             UpdateNoise();
-        }
-
-        void OnValidate()
-        {
         }
 
         public void ActiveNoiseSettingsChanged()
         {
-            if (autoUpdate)
+            if (AutoUpdate)
             {
-                updateNoise = true;
+                _updateNoise = true;
             }
         }
 
-        void ValidateParamaters()
+        private void ValidateParamaters()
         {
-            detailResolution = Mathf.Max(1, detailResolution);
-            shapeResolution = Mathf.Max(1, shapeResolution);
+            DetailResolution = Mathf.Max(1, DetailResolution);
+            ShapeResolution = Mathf.Max(1, ShapeResolution);
         }
     }
 }

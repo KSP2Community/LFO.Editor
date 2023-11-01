@@ -1,6 +1,6 @@
 ﻿using KSP;
-using LuxsFlamesAndOrnaments.Monobehaviours;
-using LuxsFlamesAndOrnaments.Settings;
+using LFO.Shared.Components;
+using LFO.Shared.Settings;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -13,35 +13,35 @@ using UnityEngine;
 
 namespace LFO.Editor
 {
-    [CustomEditor(typeof(LFOThrottleDataMasterGroup))]
+    [CustomEditor(typeof(LfoThrottleDataMasterGroup))]
     public class LFOThrottleDataMasterGroupEditor : UnityEditor.Editor
     {
         public bool UseNewShader;
 
         public override void OnInspectorGUI()
         {
-            LFOThrottleDataMasterGroup target = (LFOThrottleDataMasterGroup)base.target;
+            var group = (LfoThrottleDataMasterGroup)target;
 
             UseNewShader = EditorGUILayout.Toggle("Use New Shader", UseNewShader);
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.LabelField("Group Throttle");
-            target.GroupThrottle = EditorGUILayout.Slider(target.GroupThrottle, 0, 100f);
+            group.GroupThrottle = EditorGUILayout.Slider(group.GroupThrottle, 0, 100f);
             EditorGUILayout.LabelField("Group Atmospheric Pressure");
-            target.GroupAtmo = EditorGUILayout.Slider(target.GroupAtmo, 0, 1.1f);
+            group.GroupAtmo = EditorGUILayout.Slider(group.GroupAtmo, 0, 1.1f);
 
-            EditorGUI.BeginDisabledGroup(target.GroupAtmo > 0.0092f);
+            EditorGUI.BeginDisabledGroup(group.GroupAtmo > 0.0092f);
             EditorGUILayout.LabelField("UpperAtmo Fine tune");
-            float atmo = EditorGUILayout.Slider(target.GroupAtmo, 0, 0.0092f);
-            if (target.GroupAtmo <= 0.0092f)
+            float atmo = EditorGUILayout.Slider(group.GroupAtmo, 0, 0.0092f);
+            if (group.GroupAtmo <= 0.0092f)
             {
-                target.GroupAtmo = atmo;
+                group.GroupAtmo = atmo;
             }
 
             EditorGUI.EndDisabledGroup();
             if (EditorGUI.EndChangeCheck())
             {
-                var allMasters = GameObject.FindObjectsOfType<LFOThrottleDataMasterGroup>();
+                var allMasters = FindObjectsOfType<LfoThrottleDataMasterGroup>();
 
                 foreach (var master in allMasters)
                 {
@@ -50,68 +50,68 @@ namespace LFO.Editor
             }
 
             EditorGUI.BeginChangeCheck();
-            target.Active = EditorGUILayout.Toggle("Active?", target.Active);
+            group.Active = EditorGUILayout.Toggle("Active?", group.Active);
             if (EditorGUI.EndChangeCheck())
             {
-                target.ToggleVisibility(target.Active);
-                EditorUtility.SetDirty(target);
+                group.ToggleVisibility(group.Active);
+                EditorUtility.SetDirty(group);
             }
 
-            GUILayout.Label($"{target.throttleDatas.Count} children");
+            GUILayout.Label($"{group.ThrottleDatas.Count} children");
             if (GUILayout.Button("Collect children"))
             {
-                target.throttleDatas = target.GetComponentsInChildren<LFOThrottleData>(true).ToList();
+                group.ThrottleDatas = group.GetComponentsInChildren<LfoThrottleData>(true).ToList();
             }
 
-            var partData = target.GetComponentInParent<CorePartData>();
-            var path = $"{Application.dataPath}/LFO/configs/";
-            string fileName;
-            if (partData != null)
-            {
-                fileName = $"{partData.Data.partName}.json";
-            }
-            else
-            {
-                fileName = $"{target.name}.json";
-            }
+            var partData = group.GetComponentInParent<CorePartData>();
+            var path = $"{Application.dataPath}/plugin_template/assets/plumes/";
+            var fileName = partData != null ? $"{partData.Data.partName}.json" : $"{group.name}.json";
 
             EditorGUILayout.Space(5);
             {
                 if (GUILayout.Button("Save config"))
                 {
-                    LFOConfig config = new LFOConfig();
+                    var config = new LfoConfig();
                     if (partData != null)
-                        config.partName = target.GetComponentInParent<CorePartData>().Data.partName;
+                    {
+                        config.PartName = group.GetComponentInParent<CorePartData>().Data.partName;
+                    }
+
                     config.PlumeConfigs = new Dictionary<string, List<PlumeConfig>>();
 
-                    foreach (LFOThrottleData throttleData in target.GetComponentsInChildren<LFOThrottleData>())
+                    foreach (var throttleData in group.GetComponentsInChildren<LfoThrottleData>())
                     {
-                        PlumeConfig plumeConfig = new PlumeConfig();
+                        var plumeConfig = new PlumeConfig();
                         Material material = throttleData.GetComponent<Renderer>().sharedMaterial;
                         Shader shader = material.shader;
+                        Transform transform = throttleData.transform;
+
                         plumeConfig.ShaderSettings = ShaderConfig.GenerateConfig(material);
-                        plumeConfig.Position = throttleData.transform.localPosition;
-                        plumeConfig.Scale = throttleData.transform.localScale;
-                        plumeConfig.Rotation = throttleData.transform.localRotation.eulerAngles;
+                        plumeConfig.Position = transform.localPosition;
+                        plumeConfig.Scale = transform.localScale;
+                        plumeConfig.Rotation = transform.localRotation.eulerAngles;
                         plumeConfig.FloatParams = throttleData.FloatParams;
-                        plumeConfig.meshPath = throttleData.GetComponent<MeshFilter>().sharedMesh.name;
-                        plumeConfig.targetGameObject = throttleData.name;
+                        plumeConfig.MeshPath = throttleData.GetComponent<MeshFilter>().sharedMesh.name;
+                        plumeConfig.TargetGameObject = throttleData.name;
+
                         if (!config.PlumeConfigs.ContainsKey(throttleData.transform.parent.name))
+                        {
                             config.PlumeConfigs.Add(throttleData.transform.parent.name, new List<PlumeConfig>());
+                        }
 
                         config.PlumeConfigs[throttleData.transform.parent.name].Add(plumeConfig);
 
-                        throttleData.config = plumeConfig;
+                        throttleData.Config = plumeConfig;
                     }
 
-                    target.StartCoroutine(SaveToJson(config, path, fileName));
+                    group.StartCoroutine(SaveToJson(config, path, fileName));
                 }
 
                 if (GUILayout.Button("Reload config"))
                 {
-                    foreach (LFOThrottleData throttleData in target.GetComponentsInChildren<LFOThrottleData>())
+                    foreach (var throttleData in group.GetComponentsInChildren<LfoThrottleData>())
                     {
-                        throttleData.GetComponent<Renderer>().sharedMaterial = throttleData.config.GetMaterial();
+                        throttleData.GetComponent<Renderer>().sharedMaterial = throttleData.Config.GetMaterial();
                     }
                 }
             }
@@ -120,66 +120,82 @@ namespace LFO.Editor
                 if (GUILayout.Button("Load config"))
                 {
                     var plumeconfig = LoadFromJson(path, fileName);
-                    foreach (LFOThrottleData throttleData in target.GetComponentsInChildren<LFOThrottleData>())
+                    foreach (var throttleData in group.GetComponentsInChildren<LfoThrottleData>())
                     {
                         int index = plumeconfig.PlumeConfigs[throttleData.transform.parent.name]
-                            .FindIndex(a => a.targetGameObject == throttleData.name);
+                            .FindIndex(a => a.TargetGameObject == throttleData.name);
                         if (index < 0)
+                        {
                             continue;
-                        throttleData.config = plumeconfig.PlumeConfigs[throttleData.transform.parent.name][index];
+                        }
 
+                        throttleData.Config = plumeconfig.PlumeConfigs[throttleData.transform.parent.name][index];
 
-                        throttleData.GetComponent<Renderer>().sharedMaterial = throttleData.config.GetEditorMaterial();
+                        throttleData.GetComponent<Renderer>().sharedMaterial = throttleData.Config.GetEditorMaterial();
                         if (UseNewShader)
+                        {
                             throttleData.GetComponent<Renderer>().sharedMaterial.shader = Shader.Find("LFO/Additive");
-                        throttleData.GetComponent<Renderer>().sharedMaterial.name = throttleData.name + " Plume Material";
+                        }
+
+                        throttleData.GetComponent<Renderer>().sharedMaterial.name =
+                            throttleData.name + " Plume Material";
                     }
                 }
             }
         }
 
-        void UpdateVisuals(LFOThrottleDataMasterGroup throttleGroup)
+        void UpdateVisuals(LfoThrottleDataMasterGroup throttleGroup)
         {
             if (throttleGroup.Active)
             {
-                throttleGroup.throttleDatas.ForEach(a =>
+                throttleGroup.ThrottleDatas.ForEach(a =>
                 {
-                    if (a.IsVisible())
+                    if (!a.IsVisible())
                     {
-                        if (a.config == null)
-                            Debug.LogWarning($"Config for {a.name} is null");
-                        else
-                            a.TriggerUpdateVisuals(throttleGroup.GroupThrottle / 100f, throttleGroup.GroupAtmo, 0,
-                                Vector3.zero);
+                        return;
+                    }
+
+                    if (a.Config == null)
+                    {
+                        Debug.LogWarning($"Config for {a.name} is null");
+                    }
+                    else
+                    {
+                        a.TriggerUpdateVisuals(
+                            throttleGroup.GroupThrottle / 100f,
+                            throttleGroup.GroupAtmo,
+                            0,
+                            Vector3.zero
+                        );
                     }
                 });
             }
         }
 
-        private LFOConfig LoadFromJson(string path, string fileName)
+        private static LfoConfig LoadFromJson(string path, string fileName)
         {
             string rawJson = File.OpenText(Path.Combine(path, fileName)).ReadToEnd();
 
-            return LFOConfig.Deserialize(rawJson);
+            return LfoConfig.Deserialize(rawJson);
         }
 
-        private IEnumerator SaveToJson(LFOConfig config, string path, string fileName)
+        private static IEnumerator SaveToJson(LfoConfig config, string path, string fileName)
         {
             Directory.CreateDirectory(path);
 
-            JsonSerializerSettings settings = new JsonSerializerSettings
+            var settings = new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
 
-            string json = LFOConfig.Serialize(config);
+            string json = LfoConfig.Serialize(config);
 
             using (StreamWriter sw = File.CreateText(Path.Combine(path, fileName)))
             {
                 sw.Write(json);
             }
 
-            LFOConfig fromJson = JsonConvert.DeserializeObject<LFOConfig>(json);
+            var fromJson = JsonConvert.DeserializeObject<LfoConfig>(json);
 
             yield return null;
 
@@ -191,14 +207,14 @@ namespace LFO.Editor
     {
         public static Material GetEditorMaterial(this PlumeConfig config)
         {
-            Shader shader = Shader.Find(config.ShaderSettings.ShaderName);
+            var shader = Shader.Find(config.ShaderSettings.ShaderName);
             if (shader is null)
             {
                 Debug.LogError($"Couldn't find shader {config.ShaderSettings.ShaderName}");
                 return null;
             }
 
-            Material material = new Material(shader);
+            var material = new Material(shader);
 
             foreach (var kvp in config.ShaderSettings.ShaderParams)
             {
@@ -206,20 +222,30 @@ namespace LFO.Editor
                 {
                     if (jobject.ContainsKey("r"))
                     {
-                        Color color = new Color(jobject["r"].ToObject<float>(), jobject["g"].ToObject<float>(),
-                            jobject["b"].ToObject<float>(), jobject["a"].ToObject<float>());
+                        var color = new Color(
+                            jobject["r"].ToObject<float>(),
+                            jobject["g"].ToObject<float>(),
+                            jobject["b"].ToObject<float>(),
+                            jobject["a"].ToObject<float>()
+                        );
                         material.SetColor(kvp.Key, color);
                     }
                     else if (jobject.ContainsKey("x"))
                     {
-                        Vector4 vector = Vector4.zero;
+                        var vector = Vector4.zero;
 
                         vector.x = jobject["x"].ToObject<float>();
                         vector.y = jobject["y"].ToObject<float>();
+
                         if (jobject.ContainsKey("z"))
+                        {
                             vector.z = jobject["z"].ToObject<float>();
+                        }
+
                         if (jobject.ContainsKey("w"))
+                        {
                             vector.w = jobject["w"].ToObject<float>();
+                        }
 
                         material.SetVector(kvp.Key, vector);
                     }
@@ -240,7 +266,7 @@ namespace LFO.Editor
                         case Vector4 vector4:
                             material.SetVector(kvp.Key, vector4);
                             break;
-                        case Single number:
+                        case float number:
                             material.SetFloat(kvp.Key, number);
                             break;
                         case double dnumber:
@@ -250,7 +276,13 @@ namespace LFO.Editor
                             material.SetFloat(kvp.Key, integer);
                             break;
                         case string textureName:
-                            string path = Path.Combine("Assets", "LFO", "Noise", textureName + ".png");
+                            string path = Path.Combine(
+                                "Packages",
+                                "lfo.editor",
+                                "Assets",
+                                "Noise",
+                                textureName + ".png"
+                            );
                             Debug.Log(path);
                             material.SetTexture(kvp.Key, AssetDatabase.LoadAssetAtPath<Texture2D>(path));
                             break;

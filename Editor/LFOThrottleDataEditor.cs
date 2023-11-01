@@ -1,42 +1,42 @@
-using LuxsFlamesAndOrnaments.Monobehaviours;
+using LFO.Shared.Components;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 namespace LFO.Editor
 {
-    [CustomEditor(typeof(LFOThrottleData))]
+    [CustomEditor(typeof(LfoThrottleData))]
     public class LFOThrottleDataEditor : UnityEditor.Editor
     {
-        bool groupDropdown;
+        private bool _groupDropdown;
 
         public override void OnInspectorGUI()
         {
-            LFOThrottleData lfoThrottleData = (LFOThrottleData)target;
+            var lfoThrottleData = (LfoThrottleData)target;
 
             if (lfoThrottleData.GetComponent<Renderer>().sharedMaterial == null)
             {
-                Material mat = new Material(Shader.Find(false ? "LFO/Additive" : "LFOAdditive 2.0"));
+                var mat = new Material(Shader.Find(false ? "LFO/Additive" : "LFOAdditive 2.0"));
 
                 lfoThrottleData.GetComponent<Renderer>().sharedMaterial = mat;
             }
             else if (GUILayout.Button("New Material Instance"))
             {
-                Material mat = new Material(lfoThrottleData.GetComponent<Renderer>().sharedMaterial)
+                var mat = new Material(lfoThrottleData.GetComponent<Renderer>().sharedMaterial)
                 {
                     name = lfoThrottleData.name + " Plume Material"
                 };
 
                 lfoThrottleData.GetComponent<Renderer>().sharedMaterial = mat;
-                lfoThrottleData.config.ShaderSettings.ShaderName = mat.shader.name;
-                lfoThrottleData.config.ShaderSettings.ShaderParams = new Dictionary<string, object>();
+                lfoThrottleData.Config.ShaderSettings.ShaderName = mat.shader.name;
+                lfoThrottleData.Config.ShaderSettings.ShaderParams = new Dictionary<string, object>();
             }
 
-            var throttleGroup = lfoThrottleData.gameObject.transform.GetComponentInParent<LFOThrottleDataMasterGroup>();
+            var throttleGroup = lfoThrottleData.gameObject.transform.GetComponentInParent<LfoThrottleDataMasterGroup>();
             if (throttleGroup != null)
             {
-                groupDropdown = EditorGUILayout.Foldout(groupDropdown, "Group Controls");
-                if (groupDropdown)
+                _groupDropdown = EditorGUILayout.Foldout(_groupDropdown, "Group Controls");
+                if (_groupDropdown)
                 {
                     EditorGUI.BeginChangeCheck();
                     EditorGUILayout.LabelField("Group Throttle");
@@ -69,25 +69,31 @@ namespace LFO.Editor
 
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Seed"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("renderer"));
-            //EditorGUILayout.PropertyField(serializedObject.FindProperty("_material"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("Renderer"));
+            //EditorGUILayout.PropertyField(serializedObject.FindProperty("Material"));
             EditorGUI.EndDisabledGroup();
 
-            if (lfoThrottleData.config != null)
+            if (lfoThrottleData.Config != null)
             {
-                var serPro = serializedObject.FindProperty("config");
+                var serPro = serializedObject.FindProperty("Config");
                 if (serPro != null)
+                {
                     EditorGUILayout.PropertyField(serPro);
+                }
             }
 
             serializedObject.ApplyModifiedProperties();
         }
 
 
-        void UpdateVisuals(LFOThrottleDataMasterGroup throttleGroup)
+        private static void UpdateVisuals(LfoThrottleDataMasterGroup throttleGroup)
         {
-            throttleGroup.TriggerUpdateVisuals(throttleGroup.GroupThrottle / 100f, throttleGroup.GroupAtmo, 0,
-                Vector3.zero);
+            throttleGroup.TriggerUpdateVisuals(
+                throttleGroup.GroupThrottle / 100f,
+                throttleGroup.GroupAtmo,
+                0,
+                Vector3.zero
+            );
         }
     }
 
@@ -99,4 +105,3 @@ namespace LFO.Editor
         }
     }
 }
-

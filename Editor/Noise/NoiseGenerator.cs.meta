@@ -4,10 +4,10 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - noiseCompute: {fileID: 7200000, guid: 18d71ea19186c49d9b17692355749824, type: 3}
-  - copy: {fileID: 7200000, guid: 7abd06564e4244f60857856659a3809f, type: 3}
-  - shapeTexture: {instanceID: 0}
-  - detailTexture: {instanceID: 0}
+  - NoiseCompute: {fileID: 7200000, guid: bd6f0650bfdda47e49d101de8524cccb, type: 3}
+  - Copy: {fileID: 7200000, guid: 7abd06564e4244f60857856659a3809f, type: 3}
+  - ShapeTexture: {instanceID: 0}
+  - DetailTexture: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

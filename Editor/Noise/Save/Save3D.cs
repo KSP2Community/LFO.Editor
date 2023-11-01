@@ -5,43 +5,43 @@ namespace LFO.Editor.Noise.Save
 {
     public class Save3D : MonoBehaviour
     {
-        const int threadGroupSize = 32;
-        public ComputeShader slicer;
+        private const int ThreadGroupSize = 32;
+        public ComputeShader Slicer;
 
         public void Save(RenderTexture volumeTexture, string saveName)
         {
-#if UNITY_EDITOR
             string sceneName = SceneManager.GetActiveScene().name;
             saveName = sceneName + "_" + saveName;
             int resolution = volumeTexture.width;
-            Texture2D[] slices = new Texture2D[resolution];
+            var slices = new Texture2D[resolution];
 
-            slicer.SetInt("resolution", resolution);
-            slicer.SetTexture(0, "volumeTexture", volumeTexture);
+            Slicer.SetInt("resolution", resolution);
+            Slicer.SetTexture(0, "volumeTexture", volumeTexture);
 
             for (int layer = 0; layer < resolution; layer++)
             {
-                var slice = new RenderTexture(resolution, resolution, 0);
-                slice.dimension = UnityEngine.Rendering.TextureDimension.Tex2D;
-                slice.enableRandomWrite = true;
+                var slice = new RenderTexture(resolution, resolution, 0)
+                {
+                    dimension = UnityEngine.Rendering.TextureDimension.Tex2D,
+                    enableRandomWrite = true
+                };
                 slice.Create();
 
-                slicer.SetTexture(0, "slice", slice);
-                slicer.SetInt("layer", layer);
-                int numThreadGroups = Mathf.CeilToInt(resolution / (float)threadGroupSize);
-                slicer.Dispatch(0, numThreadGroups, numThreadGroups, 1);
+                Slicer.SetTexture(0, "slice", slice);
+                Slicer.SetInt("layer", layer);
+                int numThreadGroups = Mathf.CeilToInt(resolution / (float)ThreadGroupSize);
+                Slicer.Dispatch(0, numThreadGroups, numThreadGroups, 1);
 
                 slices[layer] = ConvertFromRenderTexture(slice);
             }
 
             var x = Tex3DFromTex2DArray(slices, resolution);
             UnityEditor.AssetDatabase.CreateAsset(x, "Assets/Resources/" + saveName + ".asset");
-#endif
         }
 
-        Texture3D Tex3DFromTex2DArray(Texture2D[] slices, int resolution)
+        private static Texture3D Tex3DFromTex2DArray(Texture2D[] slices, int resolution)
         {
-            Texture3D tex3D = new Texture3D(resolution, resolution, resolution, TextureFormat.ARGB32, false)
+            var tex3D = new Texture3D(resolution, resolution, resolution, TextureFormat.ARGB32, false)
             {
                 filterMode = FilterMode.Trilinear
             };
@@ -64,9 +64,9 @@ namespace LFO.Editor.Noise.Save
             return tex3D;
         }
 
-        Texture2D ConvertFromRenderTexture(RenderTexture rt)
+        private static Texture2D ConvertFromRenderTexture(RenderTexture rt)
         {
-            Texture2D output = new Texture2D(rt.width, rt.height);
+            var output = new Texture2D(rt.width, rt.height);
             RenderTexture.active = rt;
             output.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
             output.Apply();

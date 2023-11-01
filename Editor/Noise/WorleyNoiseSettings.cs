@@ -5,13 +5,13 @@ namespace LFO.Editor.Noise
     [CreateAssetMenu]
     public class WorleyNoiseSettings : ScriptableObject
     {
-        public int seed;
-        [Range(1, 50)] public int numDivisionsA = 5;
-        [Range(1, 50)] public int numDivisionsB = 10;
-        [Range(1, 50)] public int numDivisionsC = 15;
+        public int Seed;
+        [Range(1, 50)] public int NumDivisionsA = 5;
+        [Range(1, 50)] public int NumDivisionsB = 10;
+        [Range(1, 50)] public int NumDivisionsC = 15;
 
-        public float persistence = .5f;
-        public int tile = 1;
-        public bool invert = true;
+        public float Persistence = .5f;
+        public int Tile = 1;
+        public bool Invert = true;
     }
 }

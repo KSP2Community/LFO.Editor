@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using LFO.Shared.Components;
+using UnityEngine;
 using UnityEditor;
 
 namespace LFO.Editor
 {
-    internal class ContextMenuExtensions
+    internal static class ContextMenuExtensions
     {
         [MenuItem("GameObject/LFO/New Volumetric Plume")]
         private static void CreateVolumetricPlume(MenuCommand command)
@@ -13,8 +14,8 @@ namespace LFO.Editor
             go.name = "Plume";
             Object.DestroyImmediate(go.GetComponent<Collider>());
 
-            go.AddComponent<LFOVolume>();
-            go.AddComponent<LFOThrottleData>();
+            go.AddComponent<LfoVolume>();
+            go.AddComponent<LfoThrottleData>();
             go.GetComponent<Renderer>().sharedMaterial = new Material(Shader.Find("LFO/Volumetric (Additive)"));
 
             if (parent != null)
@@ -35,8 +36,8 @@ namespace LFO.Editor
             go.name = "Plume";
             Object.DestroyImmediate(go.GetComponent<Collider>());
 
-            go.AddComponent<LFOVolume>();
-            go.AddComponent<LFOThrottleData>();
+            go.AddComponent<LfoVolume>();
+            go.AddComponent<LfoThrottleData>();
             go.GetComponent<Renderer>().sharedMaterial = new Material(Shader.Find("LFO/Volumetric (Profiled)"));
 
             if (parent != null)

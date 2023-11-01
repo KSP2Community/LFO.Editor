@@ -1,36 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
+using LFO.Shared.Components;
+using LFO.Shared.ShaderEditor;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace LuxsFlamesAndOrnaments.Settings
+namespace LFO.Shared.Settings
 {
     [Serializable]
     public class PlumeConfig
     {
-        public string meshPath;
-        public string targetGameObject;//Name that the gameObject will have
-        public ShaderConfig ShaderSettings = new();
-        public Vector3 Position, Scale = Vector3.one, Rotation;
+        public string MeshPath;
+        public string TargetGameObject; //Name that the gameObject will have
+        public ShaderConfig ShaderSettings;
+        public Vector3 Position;
+        public Vector3 Scale = Vector3.one;
+        public Vector3 Rotation;
         public List<FloatParam> FloatParams;
 
         public static string Serialize(List<PlumeConfig> config)
         {
             return JsonConvert.SerializeObject(config, Formatting.Indented);
         }
+
         public static List<PlumeConfig> Deserialize(string rawJson)
         {
             return JsonConvert.DeserializeObject<List<PlumeConfig>>(rawJson);
         }
 
-        public static PlumeConfig CreateConfig(LFOThrottleData data)
+        public static PlumeConfig CreateConfig(LfoThrottleData data)
         {
-            return new()
+            Transform transform = data.transform;
+            return new PlumeConfig
             {
-                meshPath = data.GetComponent<MeshFilter>().mesh.name,
-                Position = data.transform.localPosition,
-                Rotation = data.transform.localRotation.eulerAngles,
-                Scale = data.transform.localScale,
+                MeshPath = data.GetComponent<MeshFilter>().mesh.name,
+                Position = transform.localPosition,
+                Rotation = transform.localRotation.eulerAngles,
+                Scale = transform.localScale,
                 FloatParams = data.FloatParams
             };
         }
@@ -43,7 +49,7 @@ namespace LuxsFlamesAndOrnaments.Settings
 
         public override string ToString()
         {
-            return $"{targetGameObject} - {meshPath}";
+            return $"{TargetGameObject} - {MeshPath}";
         }
     }
 }

@@ -2,7 +2,7 @@
     "name": "lfo.editor",
     "rootNamespace": "",
     "references": [
-        "GUID:1ef1bebd92f2fe8468bfdc850b60bc5c"
+        "lfo.shared"
     ],
     "includePlatforms": [
         "Editor"

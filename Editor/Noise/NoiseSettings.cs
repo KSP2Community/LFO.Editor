@@ -1,12 +1,13 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace LFO.Editor.Noise
 {
     public abstract class NoiseSettings : ScriptableObject
     {
-        public event System.Action OnValueChanged;
+        public event Action OnValueChanged;
 
-        public abstract System.Array GetDataArray();
+        public abstract Array GetDataArray();
 
         public abstract int Stride { get; }
 
