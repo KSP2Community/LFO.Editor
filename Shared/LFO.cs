@@ -23,7 +23,7 @@ namespace LFO.Shared
         public readonly Dictionary<string, Dictionary<string, PlumeConfig>> GameObjectToPlumeDict = new();
         public readonly Dictionary<string, Shader> LoadedShaders = new();
 
-        public LFO()
+        private LFO()
         {
             _instance = this;
         }
@@ -54,30 +54,37 @@ namespace LFO.Shared
 
         public static bool TryGetMesh(string meshPath, out Mesh mesh)
         {
-            // mesh = null;
-            // if (SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.MESHES_PATH + meshPath.ToLower() + ".fbx", out GameObject fbxPrefab))
-            // {
-            //     if (fbxPrefab.TryGetComponent<SkinnedMeshRenderer>(out var skinnedRenderer))
-            //     {
-            //         mesh = skinnedRenderer.sharedMesh;
-            //     }
-            //     else
-            //     {
-            //         mesh = fbxPrefab.GetComponent<MeshFilter>().mesh;
-            //     }
-            //     return true;
-            // }
-            // else if (SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.MESHES_PATH + meshPath.ToLower().Remove(meshPath.Length - 2) + ".obj", out GameObject objPrefab)) //obj's meshes are named as "meshName_#" with # being the meshID
-            // {
-            //     if (objPrefab.GetComponentInChildren<MeshFilter>() is not null)
-            //     {
-            //         mesh = objPrefab.GetComponentInChildren<MeshFilter>().mesh;
-            //         return true;
-            //     }
-            // }
-            // return false;
+            #if !UNITY_EDITOR
+
+            mesh = null;
+            if (SpaceWarp.API.Assets.AssetManager.TryGetAsset(MeshesPath + meshPath.ToLower() + ".fbx",
+                    out GameObject fbxPrefab))
+            {
+                mesh = fbxPrefab.TryGetComponent(out SkinnedMeshRenderer skinnedRenderer)
+                    ? skinnedRenderer.sharedMesh
+                    : fbxPrefab.GetComponent<MeshFilter>().mesh;
+                return true;
+            }
+
+            if (SpaceWarp.API.Assets.AssetManager.TryGetAsset(
+                    MeshesPath + meshPath.ToLower().Remove(meshPath.Length - 2) + ".obj",
+                    out GameObject objPrefab
+                )) //obj's meshes are named as "meshName_#" with # being the meshID
+            {
+                if (objPrefab.GetComponentInChildren<MeshFilter>() is not null)
+                {
+                    mesh = objPrefab.GetComponentInChildren<MeshFilter>().mesh;
+                    return true;
+                }
+            }
+            return false;
+
+            #else
+
             mesh = null;
             return true;
+
+            #endif
         }
 
         public static Shader GetShader(string name)
@@ -87,7 +94,8 @@ namespace LFO.Shared
                 return Instance.LoadedShaders[name];
             }
 
-            throw new IndexOutOfRangeException($"[LFO] Shader {name} is not present in the internal shader collection. Check logs for more information.");
+            throw new IndexOutOfRangeException(
+                $"[LFO] Shader {name} is not present in the internal shader collection. Check logs for more information.");
         }
 
         internal static void RegisterPlumeConfig(string partName, string id, PlumeConfig config)

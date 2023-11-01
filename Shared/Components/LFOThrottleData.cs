@@ -57,7 +57,7 @@ namespace LFO.Shared.Components
             //var engineComp = this.getcomponentpar<Module_Engine>(true);
             //string partName = (engineComp.PartBackingMode == KSP.Sim.Definitions.PartBehaviourModule.PartBackingModes.OAB) ? engineComp.OABPart.PartName : engineComp.part.name;
 
-            if (!IsRcs && string.IsNullOrEmpty(PartName) || !LFO.TryGetPlumeConfig(PartName, name, out Config))
+            if (!IsRcs && (string.IsNullOrEmpty(PartName) || !LFO.TryGetPlumeConfig(PartName, name, out Config)))
             {
                 enabled = false;
             }
@@ -75,7 +75,7 @@ namespace LFO.Shared.Components
 
         private void UpdateVisuals(float curThrottle, float curAtmo, float curAngleVel, Vector3 curAccelerationDir)
         {
-            foreach (var param in FloatParams)
+            foreach (FloatParam param in FloatParams)
             {
                 param.ApplyToMaterial(curThrottle, curAtmo, Renderer.sharedMaterial);
             }
