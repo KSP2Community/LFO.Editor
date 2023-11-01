@@ -19,7 +19,7 @@ namespace LFO.Shared
 
         private static LFO _instance;
 
-        public readonly Dictionary<string, LfoConfig> PartNameToConfigDict = new();
+        public readonly Dictionary<string, LFOConfig> PartNameToConfigDict = new();
         public readonly Dictionary<string, Dictionary<string, PlumeConfig>> GameObjectToPlumeDict = new();
         public readonly Dictionary<string, Shader> LoadedShaders = new();
 
@@ -28,9 +28,9 @@ namespace LFO.Shared
             _instance = this;
         }
 
-        public static void RegisterLFOConfig(string partName, LfoConfig config)
+        public static void RegisterLFOConfig(string partName, LFOConfig config)
         {
-            Instance.PartNameToConfigDict.TryAdd(partName, new LfoConfig());
+            Instance.PartNameToConfigDict.TryAdd(partName, new LFOConfig());
 
             if (!Instance.GameObjectToPlumeDict.ContainsKey(partName))
             {
@@ -40,7 +40,7 @@ namespace LFO.Shared
             Instance.PartNameToConfigDict[partName] = config;
         }
 
-        public static bool TryGetConfig(string partName, out LfoConfig config)
+        public static bool TryGetConfig(string partName, out LFOConfig config)
         {
             if (Instance.PartNameToConfigDict.ContainsKey(partName))
             {

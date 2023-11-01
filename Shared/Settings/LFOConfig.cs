@@ -11,7 +11,7 @@ using Object = UnityEngine.Object;
 namespace LFO.Shared.Settings
 {
     [Serializable]
-    public class LfoConfig
+    public class LFOConfig
     {
         public static JsonSerializerSettings SerializerSettings = new()
         {
@@ -24,14 +24,14 @@ namespace LFO.Shared.Settings
         public string PartName;
         public Dictionary<string, List<PlumeConfig>> PlumeConfigs;
 
-        public static string Serialize(LfoConfig config)
+        public static string Serialize(LFOConfig config)
         {
             return JsonConvert.SerializeObject(config, SerializerSettings);
         }
 
-        public static LfoConfig Deserialize(string rawJson)
+        public static LFOConfig Deserialize(string rawJson)
         {
-            return JsonConvert.DeserializeObject<LfoConfig>(rawJson, SerializerSettings);
+            return JsonConvert.DeserializeObject<LFOConfig>(rawJson, SerializerSettings);
         }
 
         internal void InstantiatePlume(string partName, ref GameObject prefab)

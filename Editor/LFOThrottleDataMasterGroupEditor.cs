@@ -71,7 +71,7 @@ namespace LFO.Editor
             {
                 if (GUILayout.Button("Save config"))
                 {
-                    var config = new LfoConfig();
+                    var config = new LFOConfig();
                     if (partData != null)
                     {
                         config.PartName = group.GetComponentInParent<CorePartData>().Data.partName;
@@ -172,14 +172,14 @@ namespace LFO.Editor
             }
         }
 
-        private static LfoConfig LoadFromJson(string path, string fileName)
+        private static LFOConfig LoadFromJson(string path, string fileName)
         {
             string rawJson = File.OpenText(Path.Combine(path, fileName)).ReadToEnd();
 
-            return LfoConfig.Deserialize(rawJson);
+            return LFOConfig.Deserialize(rawJson);
         }
 
-        private static IEnumerator SaveToJson(LfoConfig config, string path, string fileName)
+        private static IEnumerator SaveToJson(LFOConfig config, string path, string fileName)
         {
             Directory.CreateDirectory(path);
 
@@ -188,14 +188,14 @@ namespace LFO.Editor
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
 
-            string json = LfoConfig.Serialize(config);
+            string json = LFOConfig.Serialize(config);
 
             using (StreamWriter sw = File.CreateText(Path.Combine(path, fileName)))
             {
                 sw.Write(json);
             }
 
-            var fromJson = JsonConvert.DeserializeObject<LfoConfig>(json);
+            var fromJson = JsonConvert.DeserializeObject<LFOConfig>(json);
 
             yield return null;
 
