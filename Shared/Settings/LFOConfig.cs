@@ -5,7 +5,6 @@ using KSP.VFX;
 using LFO.Shared.Components;
 using Newtonsoft.Json;
 using UnityEngine;
-using static KSP.VFX.ThrottleVFXManager;
 using Object = UnityEngine.Object;
 
 namespace LFO.Shared.Settings
@@ -13,6 +12,9 @@ namespace LFO.Shared.Settings
     [Serializable]
     public class LFOConfig
     {
+        public string PartName;
+        public Dictionary<string, List<PlumeConfig>> PlumeConfigs;
+
         public static JsonSerializerSettings SerializerSettings = new()
         {
             Converters = new JsonConverter[] { new Vec4Conv(), new Vec3Conv(), new Vec2Conv(), new ColorConv() },
@@ -20,9 +22,6 @@ namespace LFO.Shared.Settings
             NullValueHandling = NullValueHandling.Ignore,
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         };
-
-        public string PartName;
-        public Dictionary<string, List<PlumeConfig>> PlumeConfigs;
 
         public static string Serialize(LFOConfig config)
         {
@@ -37,23 +36,23 @@ namespace LFO.Shared.Settings
         internal void InstantiatePlume(string partName, ref GameObject prefab)
         {
             var vfxManager = prefab.GetComponent<ThrottleVFXManager>();
-            var effects = new List<EngineEffect>();
+            var effects = new List<ThrottleVFXManager.EngineEffect>();
             var deletedObjects = new List<string>();
 
-            foreach (var kvp in PlumeConfigs)
+            foreach (KeyValuePair<string, List<PlumeConfig>> kvp in PlumeConfigs)
             {
                 Transform tParent = prefab.transform.FindChildRecursive(kvp.Key);
-                if (tParent is null)
+                if (tParent == null)
                 {
                     string sanitizedKey = "[LFO] " + kvp.Key + " [vfx_exh]";
                     tParent = prefab.transform.FindChildRecursive(sanitizedKey);
-                    if (tParent is null)
+                    if (tParent == null)
                     {
                         Debug.LogWarning(
                             $"Couldn't find GameObject named {kvp.Key} to be set as parent. Trying to create under thrustTransform"
                         );
-                        var tTransform = prefab.transform.FindChildRecursive("thrustTransform");
-                        if (tTransform is null)
+                        Transform tTransform = prefab.transform.FindChildRecursive("thrustTransform");
+                        if (tTransform == null)
                         {
                             throw new NullReferenceException(
                                 "Couldn't find GameObject named thrustTransform to enforce plume creation"
@@ -68,12 +67,25 @@ namespace LFO.Shared.Settings
                     }
                 }
 
-                GameObject parent = tParent.gameObject;
+                if (tParent == null)
+                {
+                    continue;
+                }
+
                 int childCount = tParent.childCount;
                 for (int i = childCount - 1; i >= 0; i--)
                 {
-                    deletedObjects.Add(prefab.transform.FindChildRecursive(tParent.name).GetChild(i).gameObject.name);
-                    prefab.transform.FindChildRecursive(tParent.name).GetChild(i).gameObject
+                    deletedObjects.Add(
+                        prefab.transform
+                            .FindChildRecursive(tParent.name)
+                            .GetChild(i)
+                            .gameObject
+                            .name
+                    );
+                    prefab.transform
+                        .FindChildRecursive(tParent.name)
+                        .GetChild(i)
+                        .gameObject
                         .DestroyGameObjectImmediate(); //Cleanup of every other plume (could be more efficient)
                     //TODO: Add way to avoid certain cleanups (particles etc)
                 }
@@ -86,9 +98,9 @@ namespace LFO.Shared.Settings
                             "[LFO] " + config.TargetGameObject + " [vfx_exh]",
                             typeof(MeshRenderer),
                             typeof(MeshFilter),
-                            typeof(LfoThrottleData)
+                            typeof(LFOThrottleData)
                         );
-                        var throttleData = plume.GetComponent<LfoThrottleData>();
+                        var throttleData = plume.GetComponent<LFOThrottleData>();
                         throttleData.PartName = partName;
                         throttleData.Material = config.GetMaterial();
                         bool volumetric = false;
@@ -96,7 +108,7 @@ namespace LFO.Shared.Settings
                         if (throttleData.Material.shader.name.ToLower().Contains("volumetric"))
                         {
                             volumetric = true;
-                            plume.AddComponent<LfoVolume>();
+                            plume.AddComponent<LFOVolume>();
                         }
 
                         var renderer = plume.GetComponent<MeshRenderer>();
@@ -116,7 +128,7 @@ namespace LFO.Shared.Settings
                         else
                         {
                             LFO.TryGetMesh(config.MeshPath, out Mesh mesh);
-                            if (mesh is not null)
+                            if (mesh != null)
                             {
                                 filter.mesh = mesh;
                             }
@@ -139,7 +151,10 @@ namespace LFO.Shared.Settings
                         renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                         renderer.enabled = false;
 
-                        effects.Add(new EngineEffect() { EffectReference = plume });
+                        effects.Add(new ThrottleVFXManager.EngineEffect
+                        {
+                            EffectReference = plume
+                        });
                     }
                     catch (Exception e)
                     {
@@ -148,16 +163,16 @@ namespace LFO.Shared.Settings
                 }
             }
 
-            vfxManager.FXModeActionEvents ??= new FXModeActionEvent[]
+            vfxManager.FXModeActionEvents ??= new ThrottleVFXManager.FXModeActionEvent[]
             {
                 new()
                 {
                     EngineModeIndex = 0,
-                    ActionEvents = new FXActionEvent[]
+                    ActionEvents = new ThrottleVFXManager.FXActionEvent[]
                     {
                         new()
                         {
-                            ModeEvent = FXmodeEvent.FXModeRunning,
+                            ModeEvent = ThrottleVFXManager.FXmodeEvent.FXModeRunning,
                             EngineEffects = effects.ToArray()
                         }
                     }
@@ -167,29 +182,29 @@ namespace LFO.Shared.Settings
             if (vfxManager.FXModeActionEvents.Length == 0)
             {
                 vfxManager.FXModeActionEvents =
-                    vfxManager.FXModeActionEvents.AddItem(new FXModeActionEvent()).ToArray();
+                    vfxManager.FXModeActionEvents.AddItem(new ThrottleVFXManager.FXModeActionEvent()).ToArray();
             }
 
-            var firstEngineMode = vfxManager.FXModeActionEvents[0];
+            ThrottleVFXManager.FXModeActionEvent firstEngineMode = vfxManager.FXModeActionEvents[0];
 
-            firstEngineMode.ActionEvents ??= Array.Empty<FXActionEvent>();
+            firstEngineMode.ActionEvents ??= Array.Empty<ThrottleVFXManager.FXActionEvent>();
 
-            var runningActionEvent = firstEngineMode.ActionEvents.FirstOrDefault(
-                a => a.ModeEvent == FXmodeEvent.FXModeRunning
+            ThrottleVFXManager.FXActionEvent runningActionEvent = firstEngineMode.ActionEvents.FirstOrDefault(
+                a => a.ModeEvent == ThrottleVFXManager.FXmodeEvent.FXModeRunning
             );
             if (runningActionEvent is null)
             {
-                firstEngineMode.ActionEvents = firstEngineMode.ActionEvents.AddItem(new FXActionEvent
+                firstEngineMode.ActionEvents = firstEngineMode.ActionEvents.AddItem(new ThrottleVFXManager.FXActionEvent
                 {
-                    ModeEvent = FXmodeEvent.FXModeRunning,
-                    EngineEffects = Array.Empty<EngineEffect>()
+                    ModeEvent = ThrottleVFXManager.FXmodeEvent.FXModeRunning,
+                    EngineEffects = Array.Empty<ThrottleVFXManager.EngineEffect>()
                 }).ToArray();
                 runningActionEvent = firstEngineMode.ActionEvents.FirstOrDefault(
-                    a => a.ModeEvent == FXmodeEvent.FXModeRunning
+                    a => a.ModeEvent == ThrottleVFXManager.FXmodeEvent.FXModeRunning
                 );
             }
 
-            runningActionEvent!.EngineEffects ??= Array.Empty<EngineEffect>();
+            runningActionEvent!.EngineEffects ??= Array.Empty<ThrottleVFXManager.EngineEffect>();
 
             runningActionEvent.EngineEffects = runningActionEvent.EngineEffects.AddRange(effects.ToArray());
         }

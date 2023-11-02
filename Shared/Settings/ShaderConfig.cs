@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace LFO.Shared.Settings
 {
@@ -20,15 +21,15 @@ namespace LFO.Shared.Settings
         public Material ToMaterial()
         {
             Shader shader = LFO.GetShader(ShaderName);
-            if (shader is null)
+            if (shader == null)
             {
                 Debug.LogError($"Couldn't find shader {ShaderName}");
                 return null;
             }
 
-            Material material = new(shader);
+            var material = new Material(shader);
 
-            foreach (var kvp in ShaderParams)
+            foreach (KeyValuePair<string, object> kvp in ShaderParams)
             {
                 switch (kvp.Value)
                 {
@@ -52,23 +53,22 @@ namespace LFO.Shared.Settings
                         break;
                     case string textureName:
 #if !UNITY_EDITOR
-                        if (!Application.isEditor)
+                        try
                         {
                             Texture texture;
-                            try
+                            if (!SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.NoisesPath + textureName + ".png", out texture) &&
+                                !SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.NoisesPath + textureName + ".asset", out texture) &&
+                                !SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.ProfilesPath + textureName + ".png", out texture))
                             {
-                                if (!SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.NoisesPath + textureName + ".png", out texture) &&
-                                    !SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.NoisesPath + textureName + ".asset", out texture) &&
-                                    !SpaceWarp.API.Assets.AssetManager.TryGetAsset(LFO.ProfilesPath + textureName + ".png", out texture))
-                                {
-                                    throw new NullReferenceException($"Couldn't find texture with name {textureName}. Make sure the textures have the right name!");
-                                }
-                                material.SetTexture(kvp.Key, texture);
+                                throw new NullReferenceException(
+                                    $"Couldn't find texture with name {textureName}. Make sure the textures have the right name!");
                             }
-                            catch(Exception e)
-                            {
-                                Debug.LogError(e.Message);
-                            }
+
+                            material.SetTexture(kvp.Key, texture);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError(e.Message);
                         }
 #endif
                         break;
@@ -90,11 +90,11 @@ namespace LFO.Shared.Settings
             for (int i = 0; i < shader.GetPropertyCount(); i++)
             {
                 string paramName = shader.GetPropertyName(i);
-                var paramType = shader.GetPropertyType(i);
+                ShaderPropertyType paramType = shader.GetPropertyType(i);
 
                 switch (paramType)
                 {
-                    case UnityEngine.Rendering.ShaderPropertyType.Color:
+                    case ShaderPropertyType.Color:
                     {
                         Color defaultColor = shader.GetPropertyDefaultVectorValue(i);
                         Color setColor = material.GetColor(paramName);
@@ -106,7 +106,7 @@ namespace LFO.Shared.Settings
 
                         break;
                     }
-                    case UnityEngine.Rendering.ShaderPropertyType.Vector:
+                    case ShaderPropertyType.Vector:
                     {
                         Vector4 defaultVector = shader.GetPropertyDefaultVectorValue(i);
                         Vector4 setVector = material.GetVector(paramName);
@@ -118,7 +118,7 @@ namespace LFO.Shared.Settings
 
                         break;
                     }
-                    case UnityEngine.Rendering.ShaderPropertyType.Float:
+                    case ShaderPropertyType.Float:
                     {
                         float defaultFloat = shader.GetPropertyDefaultFloatValue(i);
                         float setFloat = material.GetFloat(paramName);
@@ -130,12 +130,11 @@ namespace LFO.Shared.Settings
 
                         break;
                     }
-                    case UnityEngine.Rendering.ShaderPropertyType.Range:
+                    case ShaderPropertyType.Range:
                     {
                         Vector2 defaultRange = shader.GetPropertyRangeLimits(i);
                         float defaultValue = shader.GetPropertyDefaultFloatValue(i);
                         float setRange = material.GetFloat(paramName);
-
 
                         if (setRange != defaultValue)
                         {
@@ -144,7 +143,7 @@ namespace LFO.Shared.Settings
 
                         break;
                     }
-                    case UnityEngine.Rendering.ShaderPropertyType.Texture:
+                    case ShaderPropertyType.Texture:
                     {
                         string defaultTexture = shader.GetPropertyTextureDefaultName(i);
                         string setTexture = material.GetTexture(paramName).name;
@@ -164,7 +163,7 @@ namespace LFO.Shared.Settings
 
         public override string ToString()
         {
-            return ShaderName + $" ({ShaderParams.Count} changes)";
+            return $"{ShaderName} ({ShaderParams.Count} changes)";
         }
 
         public static ShaderConfig Default => new()
@@ -188,13 +187,13 @@ namespace LFO.Shared.Settings
             )
             {
                 var jObject = JObject.Load(reader);
-                ShaderConfig toReturn = new()
+                var toReturn = new ShaderConfig
                 {
                     ShaderName = (string)jObject["ShaderName"],
                     ShaderParams = new Dictionary<string, object>()
                 };
 
-                foreach (JToken element in jObject["ShaderParams"].Children())
+                foreach (JToken element in jObject["ShaderParams"]!.Children())
                 {
                     if (element is JProperty property)
                     {
@@ -210,17 +209,19 @@ namespace LFO.Shared.Settings
 
                                 if (xToken != null)
                                 {
-                                    var vector = Vector4.zero;
+                                    var vector = new Vector4
+                                    {
+                                        x = (float)value["x"],
+                                        y = (float)value["y"],
+                                        z = (float)value["z"],
+                                        w = (float)value["w"]
+                                    };
 
-                                    vector.x = (float)value["x"];
-                                    vector.y = (float)value["y"];
-                                    vector.z = (float)value["z"];
-                                    vector.w = (float)value["w"];
                                     toReturn.Add(paramName, vector);
                                 }
                                 else if (rToken is not null)
                                 {
-                                    var color = new Color(0, 0, 0, 0)
+                                    var color = new Color
                                     {
                                         r = (float)value["r"],
                                         g = (float)value["g"],

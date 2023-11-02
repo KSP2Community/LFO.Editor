@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 using KSP.Game;
-using LFO.Shared.Settings;
 using LFO.Shared.ShaderEditor;
 
 namespace LFO.Shared.Components
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Renderer))]
-    public class LfoThrottleData : KerbalMonoBehaviour, IEngineFXData
+    public class LFOThrottleData : KerbalMonoBehaviour, IEngineFXData
     {
         public float Seed;
         public Renderer Renderer;
+        public Settings.PlumeConfig Config = new();
+        public string PartName = "";
+        public bool IsRcs;
 
         public Material Material
         {
@@ -20,12 +22,9 @@ namespace LFO.Shared.Components
             set => Renderer.material = value;
         }
 
-        public PlumeConfig Config;
-
         public List<FloatParam> FloatParams => Config.FloatParams;
 
-        public string PartName = "";
-        public bool IsRcs;
+        public Action<float, float, float, Vector3> TriggerUpdateVisuals { get; set; }
 
         public bool IsVisible()
         {
@@ -83,14 +82,12 @@ namespace LFO.Shared.Components
 
         private void OnValidate()
         {
-            Renderer ??= GetComponent<Renderer>();
+            if (Renderer == null)
+            {
+                Renderer = GetComponent<Renderer>();
+            }
 
-            TriggerUpdateVisuals ??= (Action<float, float, float, Vector3>)Delegate.Combine(
-                TriggerUpdateVisuals,
-                (Action<float, float, float, Vector3>)UpdateVisuals
-            );
+            TriggerUpdateVisuals ??= UpdateVisuals;
         }
-
-        public Action<float, float, float, Vector3> TriggerUpdateVisuals { get; set; }
     }
 }

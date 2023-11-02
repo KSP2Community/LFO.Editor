@@ -28,7 +28,7 @@ namespace LFO.Shared.Settings
             return JsonConvert.DeserializeObject<List<PlumeConfig>>(rawJson);
         }
 
-        public static PlumeConfig CreateConfig(LfoThrottleData data)
+        public static PlumeConfig CreateConfig(LFOThrottleData data)
         {
             Transform transform = data.transform;
             return new PlumeConfig
@@ -43,8 +43,7 @@ namespace LFO.Shared.Settings
 
         public Material GetMaterial()
         {
-            Material material = ShaderSettings.ToMaterial();
-            return material;
+            return ShaderSettings.ToMaterial();
         }
 
         public override string ToString()

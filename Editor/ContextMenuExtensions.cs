@@ -14,8 +14,8 @@ namespace LFO.Editor
             go.name = "Plume";
             Object.DestroyImmediate(go.GetComponent<Collider>());
 
-            go.AddComponent<LfoVolume>();
-            go.AddComponent<LfoThrottleData>();
+            go.AddComponent<LFOVolume>();
+            go.AddComponent<LFOThrottleData>();
             go.GetComponent<Renderer>().sharedMaterial = new Material(Shader.Find("LFO/Volumetric (Additive)"));
 
             if (parent != null)
@@ -36,8 +36,8 @@ namespace LFO.Editor
             go.name = "Plume";
             Object.DestroyImmediate(go.GetComponent<Collider>());
 
-            go.AddComponent<LfoVolume>();
-            go.AddComponent<LfoThrottleData>();
+            go.AddComponent<LFOVolume>();
+            go.AddComponent<LFOThrottleData>();
             go.GetComponent<Renderer>().sharedMaterial = new Material(Shader.Find("LFO/Volumetric (Profiled)"));
 
             if (parent != null)

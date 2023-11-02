@@ -5,14 +5,14 @@ using UnityEngine;
 
 namespace LFO.Editor
 {
-    [CustomEditor(typeof(LfoThrottleData))]
+    [CustomEditor(typeof(LFOThrottleData))]
     public class LFOThrottleDataEditor : UnityEditor.Editor
     {
         private bool _groupDropdown;
 
         public override void OnInspectorGUI()
         {
-            var lfoThrottleData = (LfoThrottleData)target;
+            var lfoThrottleData = (LFOThrottleData)target;
 
             if (lfoThrottleData.GetComponent<Renderer>().sharedMaterial == null)
             {
@@ -32,7 +32,7 @@ namespace LFO.Editor
                 lfoThrottleData.Config.ShaderSettings.ShaderParams = new Dictionary<string, object>();
             }
 
-            var throttleGroup = lfoThrottleData.gameObject.transform.GetComponentInParent<LfoThrottleDataMasterGroup>();
+            var throttleGroup = lfoThrottleData.gameObject.transform.GetComponentInParent<LFOThrottleDataMasterGroup>();
             if (throttleGroup != null)
             {
                 _groupDropdown = EditorGUILayout.Foldout(_groupDropdown, "Group Controls");
@@ -86,7 +86,7 @@ namespace LFO.Editor
         }
 
 
-        private static void UpdateVisuals(LfoThrottleDataMasterGroup throttleGroup)
+        private static void UpdateVisuals(LFOThrottleDataMasterGroup throttleGroup)
         {
             throttleGroup.TriggerUpdateVisuals(
                 throttleGroup.GroupThrottle / 100f,

@@ -13,14 +13,14 @@ using UnityEngine;
 
 namespace LFO.Editor
 {
-    [CustomEditor(typeof(LfoThrottleDataMasterGroup))]
+    [CustomEditor(typeof(LFOThrottleDataMasterGroup))]
     public class LFOThrottleDataMasterGroupEditor : UnityEditor.Editor
     {
         public bool UseNewShader;
 
         public override void OnInspectorGUI()
         {
-            var group = (LfoThrottleDataMasterGroup)target;
+            var group = (LFOThrottleDataMasterGroup)target;
 
             UseNewShader = EditorGUILayout.Toggle("Use New Shader", UseNewShader);
 
@@ -41,7 +41,7 @@ namespace LFO.Editor
             EditorGUI.EndDisabledGroup();
             if (EditorGUI.EndChangeCheck())
             {
-                var allMasters = FindObjectsOfType<LfoThrottleDataMasterGroup>();
+                var allMasters = FindObjectsOfType<LFOThrottleDataMasterGroup>();
 
                 foreach (var master in allMasters)
                 {
@@ -60,7 +60,7 @@ namespace LFO.Editor
             GUILayout.Label($"{group.ThrottleDatas.Count} children");
             if (GUILayout.Button("Collect children"))
             {
-                group.ThrottleDatas = group.GetComponentsInChildren<LfoThrottleData>(true).ToList();
+                group.ThrottleDatas = group.GetComponentsInChildren<LFOThrottleData>(true).ToList();
             }
 
             var partData = group.GetComponentInParent<CorePartData>();
@@ -79,7 +79,7 @@ namespace LFO.Editor
 
                     config.PlumeConfigs = new Dictionary<string, List<PlumeConfig>>();
 
-                    foreach (var throttleData in group.GetComponentsInChildren<LfoThrottleData>())
+                    foreach (var throttleData in group.GetComponentsInChildren<LFOThrottleData>())
                     {
                         var plumeConfig = new PlumeConfig();
                         Material material = throttleData.GetComponent<Renderer>().sharedMaterial;
@@ -109,7 +109,7 @@ namespace LFO.Editor
 
                 if (GUILayout.Button("Reload config"))
                 {
-                    foreach (var throttleData in group.GetComponentsInChildren<LfoThrottleData>())
+                    foreach (var throttleData in group.GetComponentsInChildren<LFOThrottleData>())
                     {
                         throttleData.GetComponent<Renderer>().sharedMaterial = throttleData.Config.GetMaterial();
                     }
@@ -120,7 +120,7 @@ namespace LFO.Editor
                 if (GUILayout.Button("Load config"))
                 {
                     var plumeconfig = LoadFromJson(path, fileName);
-                    foreach (var throttleData in group.GetComponentsInChildren<LfoThrottleData>())
+                    foreach (var throttleData in group.GetComponentsInChildren<LFOThrottleData>())
                     {
                         int index = plumeconfig.PlumeConfigs[throttleData.transform.parent.name]
                             .FindIndex(a => a.TargetGameObject == throttleData.name);
@@ -144,7 +144,7 @@ namespace LFO.Editor
             }
         }
 
-        void UpdateVisuals(LfoThrottleDataMasterGroup throttleGroup)
+        void UpdateVisuals(LFOThrottleDataMasterGroup throttleGroup)
         {
             if (throttleGroup.Active)
             {

@@ -16,17 +16,14 @@ namespace LFO.Shared
 
         public static LFO Instance => _instance ??= new LFO();
 
-
         private static LFO _instance;
 
         public readonly Dictionary<string, LFOConfig> PartNameToConfigDict = new();
-        public readonly Dictionary<string, Dictionary<string, PlumeConfig>> GameObjectToPlumeDict = new();
-        public readonly Dictionary<string, Shader> LoadedShaders = new();
 
-        private LFO()
-        {
-            _instance = this;
-        }
+        public readonly Dictionary<string, Dictionary<string, PlumeConfig>> GameObjectToPlumeDict =
+            new();
+
+        public readonly Dictionary<string, Shader> LoadedShaders = new();
 
         public static void RegisterLFOConfig(string partName, LFOConfig config)
         {
@@ -54,11 +51,13 @@ namespace LFO.Shared
 
         public static bool TryGetMesh(string meshPath, out Mesh mesh)
         {
-            #if !UNITY_EDITOR
+#if !UNITY_EDITOR
 
             mesh = null;
-            if (SpaceWarp.API.Assets.AssetManager.TryGetAsset(MeshesPath + meshPath.ToLower() + ".fbx",
-                    out GameObject fbxPrefab))
+            if (SpaceWarp.API.Assets.AssetManager.TryGetAsset(
+                    MeshesPath + meshPath.ToLower() + ".fbx",
+                    out GameObject fbxPrefab
+                ))
             {
                 mesh = fbxPrefab.TryGetComponent(out SkinnedMeshRenderer skinnedRenderer)
                     ? skinnedRenderer.sharedMesh
@@ -66,25 +65,26 @@ namespace LFO.Shared
                 return true;
             }
 
-            if (SpaceWarp.API.Assets.AssetManager.TryGetAsset(
+            if (!SpaceWarp.API.Assets.AssetManager.TryGetAsset(
                     MeshesPath + meshPath.ToLower().Remove(meshPath.Length - 2) + ".obj",
                     out GameObject objPrefab
                 )) //obj's meshes are named as "meshName_#" with # being the meshID
             {
-                if (objPrefab.GetComponentInChildren<MeshFilter>() is not null)
-                {
-                    mesh = objPrefab.GetComponentInChildren<MeshFilter>().mesh;
-                    return true;
-                }
+                return false;
             }
-            return false;
 
-            #else
+            if (objPrefab.GetComponentInChildren<MeshFilter>() == null)
+            {
+                return false;
+            }
 
-            mesh = null;
+            mesh = objPrefab.GetComponentInChildren<MeshFilter>().mesh;
             return true;
 
-            #endif
+#else
+            mesh = null;
+            return true;
+#endif
         }
 
         public static Shader GetShader(string name)
@@ -95,7 +95,8 @@ namespace LFO.Shared
             }
 
             throw new IndexOutOfRangeException(
-                $"[LFO] Shader {name} is not present in the internal shader collection. Check logs for more information.");
+                $"[LFO] Shader {name} is not present in the internal shader collection. Check logs for more information."
+            );
         }
 
         internal static void RegisterPlumeConfig(string partName, string id, PlumeConfig config)
@@ -116,6 +117,7 @@ namespace LFO.Shared
                 Debug.LogWarning($"{partName} has no registered plume");
             }
         }
+
         internal static bool TryGetPlumeConfig(string partName, string id, out PlumeConfig config)
         {
             if (Instance.GameObjectToPlumeDict.ContainsKey(partName))

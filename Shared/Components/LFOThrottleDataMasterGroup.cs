@@ -7,19 +7,21 @@ using UnityEngine;
 namespace LFO.Shared.Components
 {
     [ExecuteInEditMode]
-    public class LfoThrottleDataMasterGroup : KerbalMonoBehaviour, IEngineFXData
+    public class LFOThrottleDataMasterGroup : KerbalMonoBehaviour, IEngineFXData
     {
-        public Action<float, float, float, Vector3> TriggerUpdateVisuals { get; set; }
-        private List<IEngineFXData> Children => ThrottleDatas.Select(a => (IEngineFXData)a).ToList();
-        public List<LfoThrottleData> ThrottleDatas = new();
-
+        public List<LFOThrottleData> ThrottleDatas = new();
         public bool OverrideControls;
         public bool Active;
         [Range(0, 100f)] public float GroupThrottle;
         [Range(0, 1.1f)] public float GroupAtmo;
 
-        private float _oldThrottle = -1, _oldAtmo = -1;
+        private float _oldThrottle = -1;
+        private float _oldAtmo = -1;
         private System.Random _rng;
+
+        public Action<float, float, float, Vector3> TriggerUpdateVisuals { get; set; }
+
+        private List<IEngineFXData> Children => ThrottleDatas.Select(a => (IEngineFXData)a).ToList();
 
         public bool IsVisible()
         {
@@ -33,7 +35,7 @@ namespace LFO.Shared.Components
                 Active = true;
             }
 
-            ThrottleDatas = GetComponentsInChildren<LfoThrottleData>(true).ToList();
+            ThrottleDatas = GetComponentsInChildren<LFOThrottleData>(true).ToList();
             _rng = new System.Random(gameObject.GetHashCode());
             NewSeedForAll();
         }

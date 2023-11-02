@@ -3,7 +3,7 @@
 namespace LFO.Shared.Components
 {
     [ExecuteInEditMode, RequireComponent(typeof(Renderer))]
-    public class LfoVolume : MonoBehaviour
+    public class LFOVolume : MonoBehaviour
     {
         private static Resolution _resolution;
         public Resolution Resolution = Resolution.Medium;
@@ -14,7 +14,7 @@ namespace LFO.Shared.Components
 
         private void Start()
         {
-            if (Material is null)
+            if (Material == null)
             {
                 return;
             }
@@ -28,7 +28,7 @@ namespace LFO.Shared.Components
 
         private void LateUpdate()
         {
-            if (Material is null)
+            if (Material == null)
             {
                 return;
             }
@@ -37,12 +37,14 @@ namespace LFO.Shared.Components
             Material.SetMatrix("rotation", Matrix4x4.Rotate(Quaternion.Inverse(transform.rotation)));
             Material.SetVector("position", transform.position);
 
-            if (Resolution != _resolution)
+            if (Resolution == _resolution)
             {
-                _resolution = Resolution;
-                Material.SetInt("_Resolution", (int)_resolution);
-                //Debug.Log($"Changed resolution of {gameObject.name}");
+                return;
             }
+
+            _resolution = Resolution;
+            Material.SetInt("_Resolution", (int)_resolution);
+            //Debug.Log($"Changed resolution of {gameObject.name}");
         }
     }
 
