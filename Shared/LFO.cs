@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using LFO.Shared.Settings;
 using UnityEngine;
 
@@ -54,7 +55,7 @@ namespace LFO.Shared
 #if !UNITY_EDITOR
 
             mesh = null;
-            if (SpaceWarp.API.Assets.AssetManager.TryGetAsset(
+            if (TryGetAsset(
                     MeshesPath + meshPath.ToLower() + ".fbx",
                     out GameObject fbxPrefab
                 ))
@@ -65,7 +66,7 @@ namespace LFO.Shared
                 return true;
             }
 
-            if (!SpaceWarp.API.Assets.AssetManager.TryGetAsset(
+            if (!TryGetAsset(
                     MeshesPath + meshPath.ToLower().Remove(meshPath.Length - 2) + ".obj",
                     out GameObject objPrefab
                 )) //obj's meshes are named as "meshName_#" with # being the meshID
@@ -128,6 +129,62 @@ namespace LFO.Shared
             Debug.LogWarning($"{partName} has no registered plume");
             config = null;
             return false;
+        }
+
+        public static bool TryGetAsset<T>(string path, out T asset) where T : UnityEngine.Object
+        {
+            asset = null;
+
+            try
+            {
+                Type assetManagerType = FindType("SpaceWarp.API.Assets", "AssetManager");
+                MethodInfo tryGetAssetMethod = assetManagerType.GetMethod("TryGetAsset",
+                    BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+
+                object[] parameters = { path, null };
+                var result = (bool)tryGetAssetMethod!.Invoke(null, parameters);
+
+                if (result)
+                {
+                    asset = (T)parameters[1];
+                    Debug.Log("Method invoked successfully, asset: " + asset.name);
+                    return true;
+                }
+
+                Debug.Log("Method invoked but returned false.");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("An error occurred: " + ex.Message);
+                return false;
+            }
+        }
+
+        private static Type FindType(string namespaceName, string typeName)
+        {
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type[] types;
+                try
+                {
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    types = e.Types;
+                }
+
+                foreach (Type type in types)
+                {
+                    if (type != null && type.Name == typeName && type.Namespace == namespaceName)
+                    {
+                        return type;
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }
