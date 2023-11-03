@@ -44,7 +44,7 @@ namespace LFO.Shared.Components
 
             _resolution = Resolution;
             Material.SetInt("_Resolution", (int)_resolution);
-            //Debug.Log($"Changed resolution of {gameObject.name}");
+            //Debug.Log($"[LFO] Changed resolution of {gameObject.name}");
         }
     }
 

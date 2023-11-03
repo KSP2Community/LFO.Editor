@@ -23,7 +23,7 @@ namespace LFO.Shared.Settings
             Shader shader = LFO.GetShader(ShaderName);
             if (shader == null)
             {
-                Debug.LogError($"Couldn't find shader {ShaderName}");
+                Debug.LogError($"[LFO] Couldn't find shader {ShaderName}");
                 return null;
             }
 
@@ -31,6 +31,7 @@ namespace LFO.Shared.Settings
 
             foreach (KeyValuePair<string, object> kvp in ShaderParams)
             {
+                Debug.Log($"[LFO] Setting {kvp.Key} to {kvp.Value} on {material.name}");
                 switch (kvp.Value)
                 {
                     case Color color:
@@ -61,14 +62,15 @@ namespace LFO.Shared.Settings
                                 !LFO.TryGetAsset(LFO.ProfilesPath + textureName + ".png", out texture))
                             {
                                 throw new NullReferenceException(
-                                    $"Couldn't find texture with name {textureName}. Make sure the textures have the right name!");
+                                    $"[LFO] Couldn't find texture with name {textureName}. Make sure the textures have the right name!");
                             }
 
+                            Debug.Log($"[LFO] Assigning texture {textureName} to property {kvp.Key} of {material.name}");
                             material.SetTexture(kvp.Key, texture);
                         }
                         catch (Exception e)
                         {
-                            Debug.LogError(e.Message);
+                            Debug.LogError($"[LFO] Error assigning texture {textureName} to property {kvp.Key} of {material.name}: {e}");
                         }
 #endif
                         break;

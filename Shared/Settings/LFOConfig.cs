@@ -49,13 +49,13 @@ namespace LFO.Shared.Settings
                     if (tParent == null)
                     {
                         Debug.LogWarning(
-                            $"Couldn't find GameObject named {kvp.Key} to be set as parent. Trying to create under thrustTransform"
+                            $"[LFO] Couldn't find GameObject named {kvp.Key} to be set as parent. Trying to create under thrustTransform"
                         );
                         Transform tTransform = prefab.transform.FindChildRecursive("thrustTransform");
                         if (tTransform == null)
                         {
                             throw new NullReferenceException(
-                                "Couldn't find GameObject named thrustTransform to enforce plume creation"
+                                "[LFO] Couldn't find GameObject named thrustTransform to enforce plume creation"
                             );
                         }
 
@@ -135,7 +135,7 @@ namespace LFO.Shared.Settings
                             else
                             {
                                 Debug.LogWarning(
-                                    $"Couldn't find mesh at {config.MeshPath} for {config.TargetGameObject}"
+                                    $"[LFO] Couldn't find mesh at {config.MeshPath} for {config.TargetGameObject}"
                                 );
                             }
                         }
@@ -158,7 +158,7 @@ namespace LFO.Shared.Settings
                     }
                     catch (Exception e)
                     {
-                        Debug.LogWarning($"{config.TargetGameObject} was not created! \tException:\n{e}");
+                        Debug.LogWarning($"[LFO] {config.TargetGameObject} was not created! \tException:\n{e}");
                     }
                 }
             }

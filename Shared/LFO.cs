@@ -115,7 +115,7 @@ namespace LFO.Shared
             }
             else
             {
-                Debug.LogWarning($"{partName} has no registered plume");
+                Debug.LogWarning($"[LFO] {partName} has no registered plume");
             }
         }
 
@@ -126,7 +126,7 @@ namespace LFO.Shared
                 return Instance.GameObjectToPlumeDict[partName].TryGetValue(id, out config);
             }
 
-            Debug.LogWarning($"{partName} has no registered plume");
+            Debug.LogWarning($"[LFO] {partName} has no registered plume");
             config = null;
             return false;
         }
@@ -147,16 +147,16 @@ namespace LFO.Shared
                 if (result)
                 {
                     asset = (T)parameters[1];
-                    Debug.Log("Method invoked successfully, asset: " + asset.name);
+                    Debug.Log("[LFO] Method invoked successfully, asset: " + asset.name);
                     return true;
                 }
 
-                Debug.Log("Method invoked but returned false.");
+                Debug.Log("[LFO] Method invoked but returned false.");
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Debug.LogError("An error occurred: " + ex.Message);
+                Debug.LogError($"[LFO] An error occurred: {e}");
                 return false;
             }
         }
