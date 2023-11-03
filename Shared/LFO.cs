@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using LFO.Shared.Settings;
 using UnityEngine;
@@ -131,18 +132,38 @@ namespace LFO.Shared
             return false;
         }
 
+        private static MethodInfo _tryGetAssetMethod;
+
         public static bool TryGetAsset<T>(string path, out T asset) where T : UnityEngine.Object
         {
-            asset = null;
+            asset = default;
 
             try
             {
-                Type assetManagerType = FindType("SpaceWarp.API.Assets", "AssetManager");
-                MethodInfo tryGetAssetMethod = assetManagerType.GetMethod("TryGetAsset",
-                    BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                if (_tryGetAssetMethod == null)
+                {
+                    Type assetManagerType = FindType("SpaceWarp.API.Assets", "AssetManager");
+                    if (assetManagerType == null)
+                    {
+                        Debug.LogError("[LFO] AssetManager type not found.");
+                        return false;
+                    }
+
+                    _tryGetAssetMethod = assetManagerType
+                        .GetMethods(BindingFlags.Static | BindingFlags.Public)
+                        .Where(method => !method.ContainsGenericParameters && method.Name == "TryGetAsset")
+                        .ToList()
+                        .FirstOrDefault();
+
+                    if (_tryGetAssetMethod == null)
+                    {
+                        Debug.LogError("[LFO] TryGetAsset method not found.");
+                        return false;
+                    }
+                }
 
                 object[] parameters = { path, null };
-                var result = (bool)tryGetAssetMethod!.Invoke(null, parameters);
+                var result = (bool)_tryGetAssetMethod.Invoke(null, parameters);
 
                 if (result)
                 {
