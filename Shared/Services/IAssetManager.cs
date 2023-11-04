@@ -6,6 +6,7 @@ namespace LFO.Shared
     public interface IAssetManager
     {
         public T GetAsset<T>(string name) where T : UnityObject;
-        public Mesh GetMesh(string meshPath);
+        public Mesh GetMesh(string meshName);
+        public Shader GetShader(string shaderOrMaterialName);
     }
 }

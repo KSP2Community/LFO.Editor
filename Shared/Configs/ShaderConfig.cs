@@ -29,7 +29,7 @@ namespace LFO.Shared.Configs
 
         public Material ToMaterial()
         {
-            var shader = AssetManager.GetAsset<Material>(ShaderName).shader;
+            var shader = AssetManager.GetShader(ShaderName);
             if (shader == null)
             {
                 Logger.LogError($"Couldn't find shader {ShaderName}");
