@@ -5,13 +5,22 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace LFO.Shared.Settings
+namespace LFO.Shared.Configs
 {
     [Serializable]
     public struct ShaderConfig
     {
         [JsonRequired] public string ShaderName;
         [JsonRequired] public Dictionary<string, object> ShaderParams;
+
+        private static readonly IAssetManager AssetManager;
+        private static readonly ILogger Logger;
+
+        static ShaderConfig()
+        {
+            Logger = ServiceProvider.GetService<ILogger>();
+            AssetManager = ServiceProvider.GetService<IAssetManager>();
+        }
 
         internal void Add(string paramName, object value)
         {
@@ -20,10 +29,10 @@ namespace LFO.Shared.Settings
 
         public Material ToMaterial()
         {
-            Shader shader = LFO.GetShader(ShaderName);
+            var shader = AssetManager.GetAsset<Shader>(ShaderName);
             if (shader == null)
             {
-                Debug.LogError($"[LFO] Couldn't find shader {ShaderName}");
+                Logger.LogError($"Couldn't find shader {ShaderName}");
                 return null;
             }
 
@@ -56,21 +65,23 @@ namespace LFO.Shared.Settings
 #if !UNITY_EDITOR
                         try
                         {
-                            Texture texture;
-                            if (!LFO.TryGetAsset(LFO.NoisesPath + textureName + ".png", out texture) &&
-                                !LFO.TryGetAsset(LFO.NoisesPath + textureName + ".asset", out texture) &&
-                                !LFO.TryGetAsset(LFO.ProfilesPath + textureName + ".png", out texture))
+                            if (AssetManager.GetAsset<Texture>(textureName) is not { } texture)
                             {
                                 throw new NullReferenceException(
-                                    $"[LFO] Couldn't find texture with name {textureName}. Make sure the textures have the right name!");
+                                    $"[LFO] Couldn't find texture with name {textureName}. Make sure the textures have the right name!"
+                                );
                             }
 
-                            Debug.Log($"[LFO] Assigning texture {textureName} to property {kvp.Key} of {material.name}");
+                            Logger.LogDebug(
+                                $"Assigning texture {textureName} to property {kvp.Key} of {material.name}"
+                            );
                             material.SetTexture(kvp.Key, texture);
                         }
                         catch (Exception e)
                         {
-                            Debug.LogError($"[LFO] Error assigning texture {textureName} to property {kvp.Key} of {material.name}: {e}");
+                            Logger.LogError(
+                                $"Error assigning texture {textureName} to property {kvp.Key} of {material.name}: {e}"
+                            );
                         }
 #endif
                         break;

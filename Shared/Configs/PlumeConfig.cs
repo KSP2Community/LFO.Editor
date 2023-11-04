@@ -5,7 +5,7 @@ using LFO.Shared.ShaderEditor;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace LFO.Shared.Settings
+namespace LFO.Shared.Configs
 {
     [Serializable]
     public class PlumeConfig

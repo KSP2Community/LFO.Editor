@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using KSP.Game;
+using LFO.Shared.Configs;
 using LFO.Shared.ShaderEditor;
 
 namespace LFO.Shared.Components
@@ -12,7 +13,7 @@ namespace LFO.Shared.Components
     {
         public float Seed;
         public Renderer Renderer;
-        public Settings.PlumeConfig Config = new();
+        public PlumeConfig Config = new();
         public string PartName = "";
         public bool IsRcs;
 
@@ -56,7 +57,8 @@ namespace LFO.Shared.Components
             //var engineComp = this.getcomponentpar<Module_Engine>(true);
             //string partName = (engineComp.PartBackingMode == KSP.Sim.Definitions.PartBehaviourModule.PartBackingModes.OAB) ? engineComp.OABPart.PartName : engineComp.part.name;
 
-            if (!IsRcs && (string.IsNullOrEmpty(PartName) || !LFO.TryGetPlumeConfig(PartName, name, out Config)))
+            if (!IsRcs &&
+                (string.IsNullOrEmpty(PartName) || !ConfigManager.TryGetPlumeConfig(PartName, name, out Config)))
             {
                 enabled = false;
             }

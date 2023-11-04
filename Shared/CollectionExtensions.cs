@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace LFO.Shared
 {
-    public static class CollectionHelpers
+    public static class CollectionExtensions
     {
         /// <summary>A helper to add items to an array</summary>
         /// <typeparam name="T">The inner type of the collection</typeparam>
@@ -18,7 +18,7 @@ namespace LFO.Shared
         /// <param name="sequence">The collection</param>
         /// <param name="item">The item to add</param>
         /// <returns>The collection containing the item</returns>
-        public static IEnumerable<T> AddItem<T>(this IEnumerable<T> sequence, T item) =>
+        public static IEnumerable<T> AddCollectionItem<T>(this IEnumerable<T> sequence, T item) =>
             (sequence ?? Enumerable.Empty<T>()).Concat(new[]
             {
                 item

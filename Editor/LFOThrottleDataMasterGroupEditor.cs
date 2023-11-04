@@ -1,6 +1,6 @@
 ﻿using KSP;
 using LFO.Shared.Components;
-using LFO.Shared.Settings;
+using LFO.Shared.Configs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
