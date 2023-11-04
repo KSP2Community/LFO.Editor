@@ -14,7 +14,7 @@ namespace LFO.Shared
 
         public static T GetService<T>()
         {
-            return (T) Services[typeof(T)];
+            return Services.TryGetValue(typeof(T), out var service) ? (T)service : default;
         }
     }
 }
