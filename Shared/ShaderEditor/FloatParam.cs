@@ -14,36 +14,22 @@ namespace LFO.Shared.ShaderEditor
 
             if (UseAtmoCurve)
             {
-                float evaluated = AtmoMultiplierCurve.Evaluate(curAtmo);
-                switch (AtmoCurveType)
-                {
-                    case CurveType.Base:
-                        calculatedValue = evaluated;
-                        break;
-                    case CurveType.Multiply:
-                        calculatedValue *= evaluated;
-                        break;
-                    case CurveType.Add:
-                        calculatedValue += evaluated;
-                        break;
-                }
+                calculatedValue = EvaluateAndApplyCurve(
+                    AtmoMultiplierCurve,
+                    AtmoCurveType,
+                    calculatedValue,
+                    curAtmo
+                );
             }
 
             if (UseThrottleCurve)
             {
-                float evaluated = ThrottleMultiplierCurve.Evaluate(curThrottle);
-                switch (ThrottleCurveType)
-                {
-                    case CurveType.Base:
-                        calculatedValue = evaluated;
-                        break;
-                    case CurveType.Multiply:
-                        calculatedValue *= evaluated;
-                        break;
-                    case CurveType.Add:
-                        calculatedValue += evaluated;
-                        break;
-                }
+                calculatedValue = EvaluateAndApplyCurve(
+                    ThrottleMultiplierCurve,
+                    ThrottleCurveType,
+                    calculatedValue,
+                    curThrottle
+                );
             }
 
             if (ParamHash == 0)
@@ -52,6 +38,33 @@ namespace LFO.Shared.ShaderEditor
             }
 
             material.SetFloat(ParamName, calculatedValue);
+        }
+
+        private static float EvaluateAndApplyCurve(
+            AnimationCurve curve,
+            CurveType curveType,
+            float value,
+            float parameter
+        )
+        {
+            float evaluated = curve.Evaluate(parameter);
+
+            switch (curveType)
+            {
+                case CurveType.Base:
+                    value = evaluated;
+                    break;
+                case CurveType.Multiply:
+                    value *= evaluated;
+                    break;
+                case CurveType.Add:
+                    value += evaluated;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(curveType), curveType, null);
+            }
+
+            return value;
         }
     }
 }
