@@ -1,6 +1,7 @@
 using UnityEngine;
+using ILogger = LFO.Shared.ILogger;
 
-namespace LFO.Shared
+namespace LFO.Editor.Services
 {
     public class UnityLogger : ILogger
     {
