@@ -38,57 +38,62 @@ namespace LFO.Shared.Configs
 
             var material = new Material(shader);
 
-            foreach (KeyValuePair<string, object> kvp in ShaderParams)
+            foreach ((string property, object value) in ShaderParams)
             {
-                Debug.Log($"[LFO] Setting {kvp.Key} to {kvp.Value} on {material.name}");
-                switch (kvp.Value)
+                Debug.Log($"[LFO] Setting {property} to {value} on {material.name}");
+                switch (value)
                 {
                     case Color color:
-                        material.SetColor(kvp.Key, color);
+                        material.SetColor(property, color);
                         break;
                     case Vector2 vector2:
-                        material.SetVector(kvp.Key, vector2);
+                        material.SetVector(property, vector2);
                         break;
                     case Vector3 vector3:
-                        material.SetVector(kvp.Key, vector3);
+                        material.SetVector(property, vector3);
                         break;
                     case Vector4 vector4:
-                        material.SetVector(kvp.Key, vector4);
+                        material.SetVector(property, vector4);
                         break;
                     case float number:
-                        material.SetFloat(kvp.Key, number);
+                        material.SetFloat(property, number);
                         break;
                     case int integer:
-                        material.SetFloat(kvp.Key, integer);
+                        material.SetFloat(property, integer);
                         break;
                     case string textureName:
-#if !UNITY_EDITOR
-                        try
-                        {
-                            if (AssetManager.GetAsset<Texture>(textureName) is not { } texture)
-                            {
-                                throw new NullReferenceException(
-                                    $"[LFO] Couldn't find texture with name {textureName}. Make sure the textures have the right name!"
-                                );
-                            }
-
-                            Logger.LogDebug(
-                                $"Assigning texture {textureName} to property {kvp.Key} of {material.name}"
-                            );
-                            material.SetTexture(kvp.Key, texture);
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.LogError(
-                                $"Error assigning texture {textureName} to property {kvp.Key} of {material.name}: {e}"
-                            );
-                        }
-#endif
+                        AssignTexture(material, property, textureName);
                         break;
                 }
             }
 
             return material;
+        }
+
+        private void AssignTexture(Material material, string property, string textureName)
+        {
+#if !UNITY_EDITOR
+            try
+            {
+                if (AssetManager.GetAsset<Texture>(textureName) is not { } texture)
+                {
+                    throw new NullReferenceException(
+                        $"[LFO] Couldn't find texture with name {textureName}. Make sure the textures have the right name!"
+                    );
+                }
+
+                Logger.LogDebug(
+                    $"Assigning texture {textureName} to property {property} of {material.name}"
+                );
+                material.SetTexture(property, texture);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(
+                    $"Error assigning texture {textureName} to property {property} of {material.name}: {e}"
+                );
+            }
+#endif
         }
 
         public static ShaderConfig GenerateConfig(Material material)
@@ -168,6 +173,8 @@ namespace LFO.Shared.Configs
 
                         break;
                     }
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(paramType), paramType, null);
                 }
             }
 
@@ -253,6 +260,8 @@ namespace LFO.Shared.Configs
                             case JTokenType.String:
                                 toReturn.Add(paramName, value.ToString());
                                 break;
+                            default:
+                                throw new ArgumentOutOfRangeException(nameof(value.Type), value.Type, null);
                         }
                     }
                 }

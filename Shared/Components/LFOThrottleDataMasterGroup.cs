@@ -70,12 +70,14 @@ namespace LFO.Shared.Components
 
         private void Update()
         {
-            if (Application.isEditor && (GroupThrottle != _oldThrottle || GroupAtmo != _oldAtmo))
+            if (!Application.isEditor || (GroupThrottle == _oldThrottle && GroupAtmo == _oldAtmo))
             {
-                UpdateVisuals(GroupThrottle / 100f, GroupAtmo, 0, Vector3.zero);
-                _oldAtmo = GroupAtmo;
-                _oldThrottle = GroupThrottle;
+                return;
             }
+
+            UpdateVisuals(GroupThrottle / 100f, GroupAtmo, 0, Vector3.zero);
+            _oldAtmo = GroupAtmo;
+            _oldThrottle = GroupThrottle;
         }
     }
 }
