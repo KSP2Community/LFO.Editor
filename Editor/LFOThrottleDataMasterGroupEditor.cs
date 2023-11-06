@@ -141,7 +141,7 @@ namespace LFO.Editor
 
         private void HandleLoadConfig(LFOThrottleDataMasterGroup group, string path, string filename)
         {
-            var plumeConfig = LoadFromJson(path, filename);
+            var plumeConfig = LoadFromJson(path);
             foreach (var throttleData in group.GetComponentsInChildren<LFOThrottleData>())
             {
                 int index = plumeConfig.PlumeConfigs[throttleData.transform.parent.name]
