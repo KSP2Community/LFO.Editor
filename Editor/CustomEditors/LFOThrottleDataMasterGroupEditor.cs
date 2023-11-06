@@ -9,7 +9,7 @@ using LFO.Shared;
 using UnityEditor;
 using UnityEngine;
 
-namespace LFO.Editor
+namespace LFO.Editor.CustomEditors
 {
     [CustomEditor(typeof(LFOThrottleDataMasterGroup))]
     public class LFOThrottleDataMasterGroupEditor : UnityEditor.Editor

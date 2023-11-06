@@ -4,7 +4,7 @@ using LFO.Shared;
 using UnityEditor;
 using UnityEngine;
 
-namespace LFO.Editor
+namespace LFO.Editor.CustomEditors
 {
     [CustomEditor(typeof(LFOThrottleData))]
     public class LFOThrottleDataEditor : UnityEditor.Editor
