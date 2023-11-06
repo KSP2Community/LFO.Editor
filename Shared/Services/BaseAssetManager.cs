@@ -21,7 +21,7 @@ namespace LFO.Shared
 
         public abstract bool TryGetAsset<T>(string name, out T asset) where T : UnityObject;
 
-        public Mesh GetMesh(string meshName)
+        public virtual Mesh GetMesh(string meshName)
         {
             if (GetAsset<GameObject>(meshName) is { } fbxPrefab)
             {
@@ -36,7 +36,7 @@ namespace LFO.Shared
                 ?.mesh;
         }
 
-        public Shader GetShader(string shaderOrMaterialName)
+        public virtual Shader GetShader(string shaderOrMaterialName)
         {
             if (TryGetAsset(shaderOrMaterialName, out Shader shader))
             {
