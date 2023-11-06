@@ -38,28 +38,9 @@ namespace LFO.Editor
                 _groupDropdown = EditorGUILayout.Foldout(_groupDropdown, "Group Controls");
                 if (_groupDropdown)
                 {
-                    EditorGUI.BeginChangeCheck();
-                    EditorGUILayout.LabelField("Group Throttle");
-                    throttleGroup.GroupThrottle = EditorGUILayout.Slider(throttleGroup.GroupThrottle, 0, 100f);
-                    EditorGUILayout.LabelField("Group Atmospheric Pressure");
-                    throttleGroup.GroupAtmo = EditorGUILayout.Slider(throttleGroup.GroupAtmo, 0, 1.1f);
-
-                    EditorGUI.BeginDisabledGroup(throttleGroup.GroupAtmo > 0.0092f);
-                    EditorGUILayout.LabelField("UpperAtmo Fine tune");
-                    float atmo = EditorGUILayout.Slider(throttleGroup.GroupAtmo, 0, 0.0092f);
-                    if (throttleGroup.GroupAtmo <= 0.0092f)
-                    {
-                        throttleGroup.GroupAtmo = atmo;
-                    }
-
-                    EditorGUI.EndDisabledGroup();
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        UpdateVisuals(throttleGroup);
-                    }
+                    HandleGroupControls(throttleGroup);
                 }
             }
-
 
             EditorGUI.BeginChangeCheck();
             if (EditorGUI.EndChangeCheck() && throttleGroup != null)
@@ -75,16 +56,38 @@ namespace LFO.Editor
 
             if (lfoThrottleData.Config != null)
             {
-                var serPro = serializedObject.FindProperty("Config");
-                if (serPro != null)
+                var serializedProperty = serializedObject.FindProperty("Config");
+                if (serializedProperty != null)
                 {
-                    EditorGUILayout.PropertyField(serPro);
+                    EditorGUILayout.PropertyField(serializedProperty);
                 }
             }
 
             serializedObject.ApplyModifiedProperties();
         }
 
+        private static void HandleGroupControls(LFOThrottleDataMasterGroup throttleGroup)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.LabelField("Group Throttle");
+            throttleGroup.GroupThrottle = EditorGUILayout.Slider(throttleGroup.GroupThrottle, 0, 100f);
+            EditorGUILayout.LabelField("Group Atmospheric Pressure");
+            throttleGroup.GroupAtmo = EditorGUILayout.Slider(throttleGroup.GroupAtmo, 0, 1.1f);
+
+            EditorGUI.BeginDisabledGroup(throttleGroup.GroupAtmo > 0.0092f);
+            EditorGUILayout.LabelField("UpperAtmo Fine tune");
+            float atmo = EditorGUILayout.Slider(throttleGroup.GroupAtmo, 0, 0.0092f);
+            if (throttleGroup.GroupAtmo <= 0.0092f)
+            {
+                throttleGroup.GroupAtmo = atmo;
+            }
+
+            EditorGUI.EndDisabledGroup();
+            if (EditorGUI.EndChangeCheck())
+            {
+                UpdateVisuals(throttleGroup);
+            }
+        }
 
         private static void UpdateVisuals(LFOThrottleDataMasterGroup throttleGroup)
         {
