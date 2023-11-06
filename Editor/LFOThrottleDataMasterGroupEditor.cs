@@ -115,7 +115,7 @@ namespace LFO.Editor
                 plumeConfig.FloatParams = throttleData.FloatParams;
                 plumeConfig.MeshPath = throttleData.TryGetComponent(out SkinnedMeshRenderer skinnedRenderer)
                     ? skinnedRenderer.sharedMesh.name
-                    : throttleData.GetComponent<MeshFilter>().mesh.name;
+                    : throttleData.GetComponent<MeshFilter>().sharedMesh.name;
                 plumeConfig.TargetGameObject = throttleData.name;
 
                 if (!config.PlumeConfigs.ContainsKey(throttleData.transform.parent.name))
