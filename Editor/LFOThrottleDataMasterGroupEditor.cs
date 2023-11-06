@@ -113,7 +113,9 @@ namespace LFO.Editor
                 plumeConfig.Scale = transform.localScale;
                 plumeConfig.Rotation = transform.localRotation.eulerAngles;
                 plumeConfig.FloatParams = throttleData.FloatParams;
-                plumeConfig.MeshPath = throttleData.GetComponent<MeshFilter>().sharedMesh.name;
+                plumeConfig.MeshPath = throttleData.TryGetComponent(out SkinnedMeshRenderer skinnedRenderer)
+                    ? skinnedRenderer.sharedMesh.name
+                    : throttleData.GetComponent<MeshFilter>().mesh.name;
                 plumeConfig.TargetGameObject = throttleData.name;
 
                 if (!config.PlumeConfigs.ContainsKey(throttleData.transform.parent.name))
