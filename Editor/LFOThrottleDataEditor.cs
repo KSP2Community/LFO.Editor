@@ -1,5 +1,6 @@
 using LFO.Shared.Components;
 using System.Collections.Generic;
+using LFO.Shared;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ namespace LFO.Editor
     [CustomEditor(typeof(LFOThrottleData))]
     public class LFOThrottleDataEditor : UnityEditor.Editor
     {
+        private static IAssetManager AssetManager => ServiceProvider.GetService<IAssetManager>();
         private bool _groupDropdown;
 
         public override void OnInspectorGUI()
@@ -16,8 +18,7 @@ namespace LFO.Editor
 
             if (lfoThrottleData.GetComponent<Renderer>().sharedMaterial == null)
             {
-                var mat = new Material(Shader.Find(false ? "LFO/Additive" : "LFOAdditive 2.0"));
-
+                var mat = new Material(AssetManager.GetShader("LFO/Additive"));
                 lfoThrottleData.GetComponent<Renderer>().sharedMaterial = mat;
             }
             else if (GUILayout.Button("New Material Instance"))
@@ -51,7 +52,6 @@ namespace LFO.Editor
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Seed"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Renderer"));
-            //EditorGUILayout.PropertyField(serializedObject.FindProperty("Material"));
             EditorGUI.EndDisabledGroup();
 
             if (lfoThrottleData.Config != null)
@@ -97,14 +97,6 @@ namespace LFO.Editor
                 0,
                 Vector3.zero
             );
-        }
-    }
-
-    public static class Helpers
-    {
-        [ContextMenu("LFO/New Layer")]
-        public static void AddNewLayer()
-        {
         }
     }
 }
