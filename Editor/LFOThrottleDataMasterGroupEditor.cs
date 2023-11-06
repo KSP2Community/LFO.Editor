@@ -119,7 +119,7 @@ namespace LFO.Editor
             {
                 if (GUILayout.Button("Load config"))
                 {
-                    var plumeconfig = LoadFromJson(path, fileName);
+                    var plumeconfig = LoadFromJson(path);
                     foreach (var throttleData in group.GetComponentsInChildren<LFOThrottleData>())
                     {
                         int index = plumeconfig.PlumeConfigs[throttleData.transform.parent.name]
@@ -172,9 +172,10 @@ namespace LFO.Editor
             }
         }
 
-        private static LFOConfig LoadFromJson(string path, string fileName)
+        private static LFOConfig LoadFromJson(string path)
         {
-            string rawJson = File.OpenText(Path.Combine(path, fileName)).ReadToEnd();
+            if (!Directory.Exists(path)) path = "Assets";
+            string rawJson = File.OpenText(EditorUtility.OpenFilePanel("LFO Config File",path,"json")).ReadToEnd();
 
             return LFOConfig.Deserialize(rawJson);
         }

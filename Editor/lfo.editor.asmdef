@@ -2,7 +2,8 @@
     "name": "lfo.editor",
     "rootNamespace": "",
     "references": [
-        "lfo.shared"
+        "lfo.shared",
+        "ksp2community.ksp2unitytools.editor"
     ],
     "includePlatforms": [
         "Editor"
