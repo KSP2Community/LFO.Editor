@@ -319,7 +319,6 @@ namespace LFO.Editor
                         "Noise",
                         textureName + ".png"
                     );
-                    Debug.Log(path);
                     material.SetTexture(param, AssetDatabase.LoadAssetAtPath<Texture2D>(path));
                     break;
             }
