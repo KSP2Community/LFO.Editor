@@ -11,6 +11,7 @@ namespace LFO.Editor
         static Startup()
         {
             ServiceProvider.RegisterService<ILogger>(new UnityLogger());
+            ServiceProvider.RegisterService<IAssetManager>(new UnityAssetManager());
         }
     }
 }
