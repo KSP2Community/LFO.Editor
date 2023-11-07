@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
@@ -15,6 +16,7 @@ namespace LFO.Shared
             { "vfx_exh_shock_p2_s1_0", "shock_1_pt2" },
             { "vfx_exh_shock_p3_s1_0", "shock_1_pt3" },
             { "vfx_exh_shock_p4_s1_0", "shock_1_pt4" },
+            { "LFOAdditive 2.0", "LFO/Additive" },
         };
 
         public abstract T GetAsset<T>(string name) where T : UnityObject;
@@ -27,17 +29,26 @@ namespace LFO.Shared
             {
                 return fbxPrefab.TryGetComponent(out SkinnedMeshRenderer skinnedRenderer)
                     ? skinnedRenderer.sharedMesh
-                    : fbxPrefab.GetComponent<MeshFilter>().mesh;
+                    : fbxPrefab.GetComponent<MeshFilter>().sharedMesh;
             }
 
             // obj's meshes are named "meshName_#" with # being the meshID
             return GetAsset<GameObject>(meshName.Remove(meshName.Length - 2))
                 ?.GetComponentInChildren<MeshFilter>()
-                ?.mesh;
+                ?.sharedMesh;
         }
 
         public virtual Shader GetShader(string shaderOrMaterialName)
         {
+            try
+            {
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
             if (TryGetAsset(shaderOrMaterialName, out Shader shader))
             {
                 return shader;

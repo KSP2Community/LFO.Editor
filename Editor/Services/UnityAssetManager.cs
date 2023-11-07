@@ -21,21 +21,23 @@ namespace LFO.Editor.Services
                     return GetAsset<T>(GetRenamedAssetName(name));
                 }
 
-                throw new Exception($"No asset found with name {name}.");
+                Logger.LogError($"No asset found with name {name}.");
+                return null;
             }
 
             T foundAsset = null;
             foreach (string guid in foundGuids)
             {
                 var asset = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
-                if (asset == null)
+                if (asset == null || !asset.name.ToLowerInvariant().Equals(name.ToLowerInvariant()))
                 {
                     continue;
                 }
 
                 if (foundAsset != null)
                 {
-                    throw new Exception($"Multiple assets found with name {name}.");
+                    Logger.LogError($"Multiple assets found with name {name}.");
+                    return null;
                 }
 
                 foundAsset = asset;
@@ -43,7 +45,8 @@ namespace LFO.Editor.Services
 
             if (foundAsset == null)
             {
-                throw new Exception($"No asset with type {typeof(T).Name} found for the name {name}.");
+                Logger.LogError($"No asset with type {typeof(T).Name} found for the name {name}.");
+                return null;
             }
 
             return foundAsset;
@@ -61,15 +64,14 @@ namespace LFO.Editor.Services
                     return TryGetAsset(renamedAssetName, out asset);
                 }
 
-                Logger.LogWarning($"No asset found with name {name}.");
                 return false;
-
             }
 
             T foundAsset = null;
             foreach (string guid in foundGuids)
             {
-                if (AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid)) is not { } assetAtPath)
+                if (AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid)) is not { } assetAtPath
+                    || !assetAtPath.name.ToLowerInvariant().Equals(name.ToLowerInvariant()))
                 {
                     continue;
                 }
@@ -85,7 +87,6 @@ namespace LFO.Editor.Services
 
             if (foundAsset == null)
             {
-                Logger.LogWarning($"No asset with type {typeof(T).Name} found for the name {name}.");
                 return false;
             }
 

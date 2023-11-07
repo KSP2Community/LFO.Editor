@@ -1,5 +1,7 @@
-﻿using LFO.Shared;
+﻿using System.IO;
+using LFO.Shared;
 using LFO.Shared.Components;
+using LFO.Shared.Configs;
 using UnityEngine;
 using UnityEditor;
 
@@ -75,6 +77,19 @@ namespace LFO.Editor.Utility
             }
 
             go.transform.localScale = Vector3.one * 5;
+        }
+
+        [MenuItem("GameObject/LFO/Create Plume from JSON")]
+        private static void CreatePlumeFromJson(MenuCommand command)
+        {
+            string rawJson = File.OpenText(EditorUtility.OpenFilePanel(
+                "LFO Config File",
+                "Assets",
+                "json"
+            )).ReadToEnd();
+
+            LFOConfig config = LFOConfig.Deserialize(rawJson);
+            PlumeUtility.CreatePlumeFromConfig(config, (GameObject)command.context);
         }
     }
 }

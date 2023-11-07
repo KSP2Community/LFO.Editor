@@ -21,19 +21,27 @@ namespace LFO.Editor.CustomEditors
         private static ILogger Logger => ServiceProvider.GetService<ILogger>();
         private static IAssetManager AssetManager => ServiceProvider.GetService<IAssetManager>();
 
-        public bool UseNewShader;
+        private bool _useNewShader;
 
         public override void OnInspectorGUI()
         {
             var group = (LFOThrottleDataMasterGroup)target;
 
-            UseNewShader = EditorGUILayout.Toggle("Use New Shader", UseNewShader);
+            _useNewShader = EditorGUILayout.Toggle("Use New Shader", _useNewShader);
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.LabelField("Group Throttle");
-            group.GroupThrottle = EditorGUILayout.Slider(group.GroupThrottle, 0, 100f);
+            group.GroupThrottle = EditorGUILayout.Slider(
+                group.GroupThrottle,
+                0,
+                LFOThrottleDataMasterGroup.ThrottleMax
+            );
             EditorGUILayout.LabelField("Group Atmospheric Pressure");
-            group.GroupAtmo = EditorGUILayout.Slider(group.GroupAtmo, 0, 1.1f);
+            group.GroupAtmo = EditorGUILayout.Slider(
+                group.GroupAtmo,
+                0,
+                LFOThrottleDataMasterGroup.AtmoMax
+            );
 
             EditorGUI.BeginDisabledGroup(group.GroupAtmo > 0.0092f);
             EditorGUILayout.LabelField("UpperAtmo Fine tune");
@@ -72,24 +80,38 @@ namespace LFO.Editor.CustomEditors
             var filename = partData != null ? $"{partData.Data.partName}.json" : $"{group.name}.json";
 
             EditorGUILayout.Space(5);
-            {
-                if (GUILayout.Button("Save config"))
-                {
-                    HandleSaveConfig(group, partData, filename);
-                }
 
-                if (GUILayout.Button("Reload config"))
-                {
-                    HandleReloadConfig(group);
-                }
-            }
-            EditorGUILayout.Space(5);
+            if (GUILayout.Button("Save to JSON"))
             {
-                if (GUILayout.Button("Load config"))
+                HandleSaveConfig(group, partData, filename);
+            }
+
+            EditorGUILayout.Space(5);
+
+            if (GUILayout.Button("Reload materials from JSON"))
+            {
+                HandleReloadConfig(group, filename);
+            }
+
+            if (GUILayout.Button("Load from JSON"))
+            {
+                if (EditorUtility.DisplayDialog(
+                        "Warning",
+                        "This will remove all child objects of this group and recreate them from JSON. Continue?",
+                        "Load",
+                        "Cancel"
+                    ))
                 {
                     HandleLoadConfig(group, filename);
                 }
             }
+        }
+
+        private void HandleLoadConfig(LFOThrottleDataMasterGroup group, string filename)
+        {
+            LFOConfig lfoConfig = LoadFromJson(PlumesFolder, filename);
+            PlumeUtility.CreatePlumeFromConfig(lfoConfig, group.gameObject.transform.parent.gameObject);
+            group.gameObject.DestroyGameObjectImmediate();
         }
 
         private static void HandleSaveConfig(
@@ -135,30 +157,22 @@ namespace LFO.Editor.CustomEditors
             group.StartCoroutine(SaveToJson(config, PlumesFolder, filename));
         }
 
-        private static void HandleReloadConfig(LFOThrottleDataMasterGroup group)
+        private void HandleReloadConfig(LFOThrottleDataMasterGroup group, string filename)
         {
+            LFOConfig lfoConfig = LoadFromJson(PlumesFolder, filename);
             foreach (var throttleData in group.GetComponentsInChildren<LFOThrottleData>())
             {
-                throttleData.GetComponent<Renderer>().sharedMaterial = throttleData.Config.GetMaterial();
-            }
-        }
-
-        private void HandleLoadConfig(LFOThrottleDataMasterGroup group, string filename)
-        {
-            var plumeConfig = LoadFromJson(PlumesFolder, filename);
-            foreach (var throttleData in group.GetComponentsInChildren<LFOThrottleData>())
-            {
-                int index = plumeConfig.PlumeConfigs[throttleData.transform.parent.name]
+                int index = lfoConfig.PlumeConfigs[throttleData.transform.parent.name]
                     .FindIndex(a => a.TargetGameObject == throttleData.name);
                 if (index < 0)
                 {
                     continue;
                 }
 
-                throttleData.Config = plumeConfig.PlumeConfigs[throttleData.transform.parent.name][index];
+                throttleData.Config = lfoConfig.PlumeConfigs[throttleData.transform.parent.name][index];
 
                 throttleData.GetComponent<Renderer>().sharedMaterial = throttleData.Config.GetEditorMaterial();
-                if (UseNewShader)
+                if (_useNewShader)
                 {
                     throttleData.GetComponent<Renderer>().sharedMaterial.shader =
                         AssetManager.GetShader("LFO/Additive");

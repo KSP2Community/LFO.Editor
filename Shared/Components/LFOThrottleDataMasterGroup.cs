@@ -9,11 +9,14 @@ namespace LFO.Shared.Components
     [ExecuteInEditMode]
     public class LFOThrottleDataMasterGroup : KerbalMonoBehaviour, IEngineFXData
     {
+        public const float ThrottleMax = 100f;
+        public const float AtmoMax = 5f;
+
         public List<LFOThrottleData> ThrottleDatas = new();
         public bool OverrideControls;
         public bool Active;
-        [Range(0, 100f)] public float GroupThrottle;
-        [Range(0, 1.1f)] public float GroupAtmo;
+        [Range(0, ThrottleMax)] public float GroupThrottle;
+        [Range(0, AtmoMax)] public float GroupAtmo;
 
         private float _oldThrottle = -1;
         private float _oldAtmo = -1;
