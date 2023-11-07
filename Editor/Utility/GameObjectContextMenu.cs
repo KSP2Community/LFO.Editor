@@ -3,9 +3,9 @@ using LFO.Shared.Components;
 using UnityEngine;
 using UnityEditor;
 
-namespace LFO.Editor
+namespace LFO.Editor.Utility
 {
-    internal static class ContextMenuExtensions
+    internal static class LFOContextMenu
     {
         private static IAssetManager AssetManager => ServiceProvider.GetService<IAssetManager>();
 

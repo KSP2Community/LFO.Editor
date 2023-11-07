@@ -3,9 +3,9 @@ using LFO.Shared.Configs;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace LFO.Editor
+namespace LFO.Editor.Utility
 {
-    public static class Extensions
+    public static class LFOExtensions
     {
         private static IAssetManager AssetManager => ServiceProvider.GetService<IAssetManager>();
 

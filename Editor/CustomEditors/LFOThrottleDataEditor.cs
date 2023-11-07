@@ -15,20 +15,21 @@ namespace LFO.Editor.CustomEditors
         public override void OnInspectorGUI()
         {
             var lfoThrottleData = (LFOThrottleData)target;
+            var renderer = lfoThrottleData.GetComponent<Renderer>();
 
-            if (lfoThrottleData.GetComponent<Renderer>().sharedMaterial == null)
+            if (renderer.sharedMaterial == null)
             {
                 var mat = new Material(AssetManager.GetShader("LFO/Additive"));
-                lfoThrottleData.GetComponent<Renderer>().sharedMaterial = mat;
+                renderer.sharedMaterial = mat;
             }
             else if (GUILayout.Button("New Material Instance"))
             {
-                var mat = new Material(lfoThrottleData.GetComponent<Renderer>().sharedMaterial)
+                var mat = new Material(renderer.sharedMaterial)
                 {
                     name = lfoThrottleData.name + " Plume Material"
                 };
 
-                lfoThrottleData.GetComponent<Renderer>().sharedMaterial = mat;
+                renderer.sharedMaterial = mat;
                 lfoThrottleData.Config.ShaderSettings.ShaderName = mat.shader.name;
                 lfoThrottleData.Config.ShaderSettings.ShaderParams = new Dictionary<string, object>();
             }
