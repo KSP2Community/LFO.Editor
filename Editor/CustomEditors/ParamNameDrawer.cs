@@ -7,7 +7,7 @@ using LFO.Shared.ShaderEditor;
 namespace LFO.Editor.CustomEditors
 {
     [CustomPropertyDrawer(typeof(ParamName))]
-    public class FloatParamDrawer : PropertyDrawer
+    public class ParamNameDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -20,10 +20,10 @@ namespace LFO.Editor.CustomEditors
 
             var nameRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
 
-            var paramNameProp = property.FindPropertyRelative("Value");
+            var valueProp = property.FindPropertyRelative("Value");
             if (property.serializedObject.targetObject is not LFOThrottleData { Renderer: { } renderer })
             {
-                EditorGUI.PropertyField(nameRect, paramNameProp, GUIContent.none);
+                EditorGUI.PropertyField(nameRect, valueProp, GUIContent.none);
             }
             else
             {
@@ -33,18 +33,19 @@ namespace LFO.Editor.CustomEditors
                 {
                     if (EditorGUI.DropdownButton(
                             nameRect,
-                            new GUIContent(paramNameProp.stringValue),
+                            new GUIContent(valueProp.stringValue),
                             FocusType.Keyboard
                         ))
                     {
-                        GenericMenu menu = new GenericMenu();
+                        var menu = new GenericMenu();
                         foreach (string propName in shaderProps)
                         {
-                            bool isSelected = paramNameProp.stringValue == propName;
+                            bool isSelected = valueProp.stringValue == propName;
                             menu.AddItem(new GUIContent(propName), isSelected, () =>
                             {
-                                paramNameProp.stringValue = propName;
-                                paramNameProp.serializedObject.ApplyModifiedProperties();
+                                valueProp.stringValue = propName;
+                                valueProp.serializedObject.ApplyModifiedProperties();
+                                property.serializedObject.ApplyModifiedProperties();
                             });
                         }
 
