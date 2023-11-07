@@ -9,6 +9,7 @@ using LFO.Editor.Utility;
 using LFO.Shared;
 using UnityEditor;
 using UnityEngine;
+using ILogger = LFO.Shared.ILogger;
 
 namespace LFO.Editor.CustomEditors
 {
@@ -17,6 +18,7 @@ namespace LFO.Editor.CustomEditors
     {
         private const string PlumesFolder = "Assets/plugin_template/assets/plumes/";
 
+        private static ILogger Logger => ServiceProvider.GetService<ILogger>();
         private static IAssetManager AssetManager => ServiceProvider.GetService<IAssetManager>();
 
         public bool UseNewShader;
@@ -183,7 +185,7 @@ namespace LFO.Editor.CustomEditors
 
                 if (throttleData.Config == null)
                 {
-                    Debug.LogWarning($"Config for {throttleData.name} is null");
+                    Logger.LogWarning($"Config for {throttleData.name} is null");
                     return;
                 }
 

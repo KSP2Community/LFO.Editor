@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
+using LFO.Shared;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using ILogger = LFO.Shared.ILogger;
 
 namespace LFO.Editor.Noise
 {
     public class NoiseGenerator : MonoBehaviour
     {
+        private static ILogger Logger => ServiceProvider.GetService<ILogger>();
+
         private const int ComputeThreadGroupSize = 8;
         private const string DetailNoiseName = "DetailNoise";
         private const string ShapeNoiseName = "ShapeNoise";
@@ -105,7 +109,7 @@ namespace LFO.Editor.Noise
                 var minMax = new int[2];
                 minMaxBuffer.GetData(minMax);
 
-                Debug.Log($"Noise Generation: {timer.ElapsedMilliseconds}ms");
+                Logger.LogInfo($"Noise Generation: {timer.ElapsedMilliseconds}ms");
             }
 
             // Release buffers
@@ -216,7 +220,7 @@ namespace LFO.Editor.Noise
                 texture.volumeDepth != resolution ||
                 texture.graphicsFormat != format)
             {
-                //Debug.Log ("Create tex: update noise: " + updateNoise);
+                //Logger.LogInfo ("Create tex: update noise: " + updateNoise);
                 if (texture != null)
                 {
                     texture.Release();

@@ -40,7 +40,7 @@ namespace LFO.Shared.Configs
 
             foreach ((string property, object value) in ShaderParams)
             {
-                Debug.Log($"[LFO] Setting {property} to {value} on {material.name}");
+                Logger.LogDebug($"Setting {property} to {value} on {material.name}");
                 switch (value)
                 {
                     case Color color:

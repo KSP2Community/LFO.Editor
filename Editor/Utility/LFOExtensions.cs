@@ -2,18 +2,20 @@
 using LFO.Shared.Configs;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using ILogger = LFO.Shared.ILogger;
 
 namespace LFO.Editor.Utility
 {
     public static class LFOExtensions
     {
+        private static ILogger Logger => ServiceProvider.GetService<ILogger>();
         private static IAssetManager AssetManager => ServiceProvider.GetService<IAssetManager>();
 
         public static Material GetEditorMaterial(this PlumeConfig config)
         {
             if (AssetManager.GetShader(config.ShaderSettings.ShaderName) is not { } shader)
             {
-                Debug.LogError($"Couldn't find shader {config.ShaderSettings.ShaderName}");
+                Logger.LogError($"Couldn't find shader {config.ShaderSettings.ShaderName}");
                 return null;
             }
 

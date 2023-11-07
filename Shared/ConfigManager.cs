@@ -6,9 +6,11 @@ namespace LFO.Shared
 {
     public class ConfigManager
     {
-        public static ConfigManager Instance => _instance ??= new ConfigManager();
+        private static readonly ILogger Logger = ServiceProvider.GetService<ILogger>();
 
         private static ConfigManager _instance;
+
+        public static ConfigManager Instance => _instance ??= new ConfigManager();
 
         public readonly Dictionary<string, LFOConfig> PartNameToConfigDict = new();
 
@@ -48,7 +50,7 @@ namespace LFO.Shared
             }
             else
             {
-                Debug.LogWarning($"[LFO] {partName} has no registered plume");
+                Logger.LogWarning($"[LFO] {partName} has no registered plume");
             }
         }
 
@@ -59,7 +61,7 @@ namespace LFO.Shared
                 return Instance.GameObjectToPlumeDict[partName].TryGetValue(id, out config);
             }
 
-            Debug.LogWarning($"[LFO] {partName} has no registered plume");
+            Logger.LogWarning($"[LFO] {partName} has no registered plume");
             config = null;
             return false;
         }

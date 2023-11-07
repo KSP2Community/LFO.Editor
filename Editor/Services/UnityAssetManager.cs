@@ -61,7 +61,7 @@ namespace LFO.Editor.Services
                     return TryGetAsset(renamedAssetName, out asset);
                 }
 
-                Debug.LogWarning($"No asset found with name {name}.");
+                Logger.LogWarning($"No asset found with name {name}.");
                 return false;
 
             }
