@@ -9,7 +9,7 @@ namespace LFO.Shared.ShaderEditor
         [HideInInspector] public int ParamHash = -1;
         [HideInInspector] public bool IsDirty;
 
-        public string ParamName;
+        public ParamName ParamName;
         public bool UseAtmoCurve;
         public CurveType AtmoCurveType;
         public AnimationCurve AtmoMultiplierCurve;

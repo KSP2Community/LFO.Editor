@@ -12,7 +12,14 @@ namespace LFO.Shared.Configs
 
         public static JsonSerializerSettings SerializerSettings = new()
         {
-            Converters = new JsonConverter[] { new Vec4Conv(), new Vec3Conv(), new Vec2Conv(), new ColorConv() },
+            Converters = new JsonConverter[]
+            {
+                new Vec4Conv(),
+                new Vec3Conv(),
+                new Vec2Conv(),
+                new ColorConv(),
+                new ParamNameConverter()
+            },
             Formatting = Formatting.Indented,
             NullValueHandling = NullValueHandling.Ignore,
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore

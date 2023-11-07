@@ -1,6 +1,7 @@
 using UnityEngine;
 using Newtonsoft.Json;
 using System;
+using LFO.Shared.ShaderEditor;
 using Newtonsoft.Json.Linq;
 
 namespace LFO.Shared
@@ -173,6 +174,26 @@ namespace LFO.Shared
             writer.WritePropertyName("a");
             writer.WriteValue(v.a);
             writer.WriteEndObject();
+        }
+    }
+
+    public class ParamNameConverter  : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(ParamName);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            var stringValue = (string)reader.Value!;
+            return new ParamName(stringValue);
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            var paramNameValue = (ParamName)value!;
+            writer.WriteValue(paramNameValue.Value);
         }
     }
 }

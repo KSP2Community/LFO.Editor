@@ -188,7 +188,7 @@ namespace LFO.Shared.Configs
 
         public static ShaderConfig Default => new()
         {
-            ShaderName = "LFOAdditive"
+            ShaderName = "LFO/Additive"
         };
 
         [JsonConverter(typeof(ShaderConfig))]
