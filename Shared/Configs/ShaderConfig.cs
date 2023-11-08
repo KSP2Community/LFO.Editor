@@ -158,9 +158,9 @@ namespace LFO.Shared.Configs
                     case ShaderPropertyType.Texture:
                     {
                         string defaultTexture = shader.GetPropertyTextureDefaultName(i);
-                        string setTexture = material.GetTexture(paramName).name;
+                        string setTexture = material.GetTexture(paramName)?.name;
 
-                        if (setTexture != defaultTexture)
+                        if (setTexture != null && setTexture != defaultTexture)
                         {
                             config.Add(paramName, setTexture);
                         }

@@ -250,7 +250,10 @@ namespace LFO.Editor.CustomEditors
 
             foreach (PlumeConfig plumeConfig in config.PlumeConfigs.Values.SelectMany(item => item))
             {
-                MakeAssetAddressable(plumeConfig.MeshPath, AssetManager.GetAssetPath<Mesh>(plumeConfig.MeshPath));
+                var meshPath = AssetManager.GetAssetPath<Mesh>(plumeConfig.MeshPath)
+                               ?? AssetManager.GetAssetPath<GameObject>(plumeConfig.MeshPath);
+
+                MakeAssetAddressable(plumeConfig.MeshPath, meshPath);
 
                 foreach ((string _, object value) in plumeConfig.ShaderSettings.ShaderParams)
                 {
