@@ -31,7 +31,7 @@ namespace LFO.Editor.Utility
                     {
                         gameObject.transform.localPosition = plumeConfig.Position;
                         gameObject.transform.localScale = plumeConfig.Scale;
-                        gameObject.transform.localRotation *= Quaternion.Euler(plumeConfig.Rotation);
+                        gameObject.transform.localRotation = Quaternion.Euler(plumeConfig.Rotation);
 
                         var renderer = gameObject.AddComponent<MeshRenderer>();
                         var meshFilter = gameObject.AddComponent<MeshFilter>();
