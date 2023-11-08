@@ -1,8 +1,8 @@
-﻿using System;
-using LFO.Shared;
+﻿using LFO.Shared;
 using UnityEditor;
 using UnityEngine;
 using ILogger = LFO.Shared.ILogger;
+using UnityObject = UnityEngine.Object;
 
 namespace LFO.Editor.Services
 {
@@ -11,22 +11,70 @@ namespace LFO.Editor.Services
         private static ILogger Logger => ServiceProvider.GetService<ILogger>();
         private static readonly string[] AssetFolders = { "Assets", "Packages/lfo.editor/Assets" };
 
-        public override T GetAsset<T>(string name)
+        private string[] FindGuids(string name)
         {
             string[] foundGuids = AssetDatabase.FindAssets(name, AssetFolders);
+
+            if (foundGuids.Length == 0 && GetRenamedAssetName(name) is { } renamedAssetName)
+            {
+                return FindGuids(renamedAssetName);
+            }
+
+            return foundGuids;
+        }
+
+        public override string GetAssetPath<T>(string name)
+        {
+            string[] foundGuids = FindGuids(name);
+
             if (foundGuids.Length == 0)
             {
-                if (GetRenamedAssetName(name) != null)
-                {
-                    return GetAsset<T>(GetRenamedAssetName(name));
-                }
-
-                Logger.LogError($"No asset found with name {name}.");
+                Logger.LogError($"No asset named {name} was found.");
                 return null;
             }
 
-            T foundAsset = null;
+            string foundPath = null;
+
             foreach (string guid in foundGuids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                UnityObject asset = AssetDatabase.LoadAssetAtPath(path, typeof(T));
+                if (asset == null || !asset.name.ToLowerInvariant().Equals(name.ToLowerInvariant()))
+                {
+                    continue;
+                }
+
+                if (foundPath != null)
+                {
+                    Logger.LogError($"Multiple assets found with name {name}.");
+                    return null;
+                }
+
+                foundPath = path;
+            }
+
+            if (foundPath == null)
+            {
+                Logger.LogError($"No asset with type {typeof(T).Name} found for the name {name}.");
+                return null;
+            }
+
+            return foundPath;
+        }
+
+        public override T GetAsset<T>(string name)
+        {
+            T foundAsset = null;
+
+            string[] foundGuids = FindGuids(name);
+
+            if (foundGuids.Length == 0)
+            {
+                Logger.LogError($"No asset named {name} was found.");
+                return null;
+            }
+
+            foreach (string guid in FindGuids(name))
             {
                 var asset = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
                 if (asset == null || !asset.name.ToLowerInvariant().Equals(name.ToLowerInvariant()))
@@ -56,22 +104,17 @@ namespace LFO.Editor.Services
         {
             asset = null;
 
-            string[] foundGuids = AssetDatabase.FindAssets(name, AssetFolders);
+            string[] foundGuids = FindGuids(name);
             if (foundGuids.Length == 0)
             {
-                if (GetRenamedAssetName(name) is { } renamedAssetName)
-                {
-                    return TryGetAsset(renamedAssetName, out asset);
-                }
-
                 return false;
             }
 
             T foundAsset = null;
             foreach (string guid in foundGuids)
             {
-                if (AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid)) is not { } assetAtPath
-                    || !assetAtPath.name.ToLowerInvariant().Equals(name.ToLowerInvariant()))
+                var loadedAsset = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
+                if (loadedAsset == null || !loadedAsset.name.ToLowerInvariant().Equals(name.ToLowerInvariant()))
                 {
                     continue;
                 }
@@ -82,7 +125,7 @@ namespace LFO.Editor.Services
                     return foundAsset;
                 }
 
-                foundAsset = assetAtPath;
+                foundAsset = loadedAsset;
             }
 
             if (foundAsset == null)

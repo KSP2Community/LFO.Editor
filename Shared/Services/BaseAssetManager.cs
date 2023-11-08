@@ -19,6 +19,8 @@ namespace LFO.Shared
             { "LFOAdditive 2.0", "LFO/Additive" },
         };
 
+        public abstract string GetAssetPath<T>(string name);
+
         public abstract T GetAsset<T>(string name) where T : UnityObject;
 
         public abstract bool TryGetAsset<T>(string name, out T asset) where T : UnityObject;

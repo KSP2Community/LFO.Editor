@@ -1,10 +1,12 @@
-﻿using KSP;
+﻿using System;
+using KSP;
 using LFO.Shared.Components;
 using LFO.Shared.Configs;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ksp2community.ksp2unitytools.editor.API;
 using LFO.Editor.Utility;
 using LFO.Shared;
 using UnityEditor;
@@ -16,7 +18,10 @@ namespace LFO.Editor.CustomEditors
     [CustomEditor(typeof(LFOThrottleDataMasterGroup))]
     public class LFOThrottleDataMasterGroupEditor : UnityEditor.Editor
     {
-        private const string PlumesFolder = "Assets/plugin_template/assets/plumes/";
+        private const string JsonConfigFolder = "Assets/plugin_template/assets/plumes/";
+        private const string AssetsLabel = "lfo_assets";
+        private const string ConfigsLabel = "lfo_configs";
+        private const string AddressablesConfigFolder = "Assets/LFO/";
 
         private static ILogger Logger => ServiceProvider.GetService<ILogger>();
         private static IAssetManager AssetManager => ServiceProvider.GetService<IAssetManager>();
@@ -77,13 +82,15 @@ namespace LFO.Editor.CustomEditors
             }
 
             var partData = group.GetComponentInParent<CorePartData>();
-            var filename = partData != null ? $"{partData.Data.partName}.json" : $"{group.name}.json";
+            string filename = partData != null ? $"{partData.Data.partName}.json" : $"{group.name}.json";
 
             EditorGUILayout.Space(5);
 
-            if (GUILayout.Button("Save to JSON"))
+            group.UseAddressables = !EditorGUILayout.Toggle("Don't use addressables", !group.UseAddressables);
+
+            if (GUILayout.Button("Save plume"))
             {
-                HandleSaveConfig(group, partData, filename);
+                HandleSaveConfig(group, partData?.Data.partName, filename);
             }
 
             EditorGUILayout.Space(5);
@@ -109,57 +116,25 @@ namespace LFO.Editor.CustomEditors
 
         private void HandleLoadConfig(LFOThrottleDataMasterGroup group, string filename)
         {
-            LFOConfig lfoConfig = LoadFromJson(PlumesFolder, filename);
+            LFOConfig lfoConfig = LoadFromJson(
+                group.UseAddressables
+                    ? AddressablesConfigFolder
+                    : JsonConfigFolder,
+                filename
+            );
             PlumeUtility.CreatePlumeFromConfig(lfoConfig, group.gameObject.transform.parent.gameObject);
             group.gameObject.DestroyGameObjectImmediate();
         }
 
-        private static void HandleSaveConfig(
-            LFOThrottleDataMasterGroup group,
-            CorePartData partData,
-            string filename
-        )
-        {
-            var config = new LFOConfig();
-            if (partData != null)
-            {
-                config.PartName = group.GetComponentInParent<CorePartData>().Data.partName;
-            }
-
-            config.PlumeConfigs = new Dictionary<string, List<PlumeConfig>>();
-
-            foreach (var throttleData in group.GetComponentsInChildren<LFOThrottleData>())
-            {
-                var plumeConfig = new PlumeConfig();
-                Material material = throttleData.GetComponent<Renderer>().sharedMaterial;
-                Transform transform = throttleData.transform;
-
-                plumeConfig.ShaderSettings = ShaderConfig.GenerateConfig(material);
-                plumeConfig.Position = transform.localPosition;
-                plumeConfig.Scale = transform.localScale;
-                plumeConfig.Rotation = transform.localRotation.eulerAngles;
-                plumeConfig.FloatParams = throttleData.FloatParams;
-                plumeConfig.MeshPath = throttleData.TryGetComponent(out SkinnedMeshRenderer skinnedRenderer)
-                    ? skinnedRenderer.sharedMesh.name
-                    : throttleData.GetComponent<MeshFilter>().sharedMesh.name;
-                plumeConfig.TargetGameObject = throttleData.name;
-
-                if (!config.PlumeConfigs.ContainsKey(throttleData.transform.parent.name))
-                {
-                    config.PlumeConfigs.Add(throttleData.transform.parent.name, new List<PlumeConfig>());
-                }
-
-                config.PlumeConfigs[throttleData.transform.parent.name].Add(plumeConfig);
-
-                throttleData.Config = plumeConfig;
-            }
-
-            group.StartCoroutine(SaveToJson(config, PlumesFolder, filename));
-        }
-
         private void HandleReloadConfig(LFOThrottleDataMasterGroup group, string filename)
         {
-            LFOConfig lfoConfig = LoadFromJson(PlumesFolder, filename);
+            LFOConfig lfoConfig = LoadFromJson(
+                group.UseAddressables
+                    ? AddressablesConfigFolder
+                    : JsonConfigFolder,
+                filename
+            );
+
             foreach (var throttleData in group.GetComponentsInChildren<LFOThrottleData>())
             {
                 int index = lfoConfig.PlumeConfigs[throttleData.transform.parent.name]
@@ -181,6 +156,21 @@ namespace LFO.Editor.CustomEditors
                 throttleData.GetComponent<Renderer>().sharedMaterial.name =
                     throttleData.name + " Plume Material";
             }
+        }
+
+        private static void HandleSaveConfig(
+            LFOThrottleDataMasterGroup group,
+            string partName,
+            string filename
+        )
+        {
+            LFOConfig config = PlumeUtility.GetConfigFromPlume(group, partName);
+
+            group.StartCoroutine(
+                group.UseAddressables
+                    ? SaveToAddressables(config, filename)
+                    : SaveToJson(config, JsonConfigFolder, filename)
+            );
         }
 
         private static void UpdateVisuals(LFOThrottleDataMasterGroup throttleGroup)
@@ -234,13 +224,13 @@ namespace LFO.Editor.CustomEditors
             return LFOConfig.Deserialize(rawJson);
         }
 
-        private static IEnumerator SaveToJson(LFOConfig config, string path, string fileName)
+        private static IEnumerator SaveToJson(LFOConfig config, string path, string filename)
         {
             Directory.CreateDirectory(path);
 
             string json = LFOConfig.Serialize(config);
 
-            using (StreamWriter sw = File.CreateText(Path.Combine(path, fileName)))
+            using (StreamWriter sw = File.CreateText(Path.Combine(path, filename)))
             {
                 sw.Write(json);
             }
@@ -248,6 +238,44 @@ namespace LFO.Editor.CustomEditors
             yield return null;
 
             AssetDatabase.Refresh();
+        }
+
+        private static IEnumerator SaveToAddressables(LFOConfig config, string filename)
+        {
+            yield return SaveToJson(config, AddressablesConfigFolder, filename);
+
+            AddressablesTools.MakeAddressable(
+                Path.Combine(AddressablesConfigFolder, filename),
+                filename,
+                ConfigsLabel
+            );
+
+            foreach (PlumeConfig plumeConfig in config.PlumeConfigs.Values.SelectMany(item => item))
+            {
+                MakeAssetAddressable(plumeConfig.MeshPath, AssetManager.GetAssetPath<Mesh>(plumeConfig.MeshPath));
+
+                foreach ((string _, object value) in plumeConfig.ShaderSettings.ShaderParams)
+                {
+                    if (value is string texture)
+                    {
+                        MakeAssetAddressable(texture, AssetManager.GetAssetPath<Texture>(texture));
+                    }
+                }
+            }
+        }
+
+        private static void MakeAssetAddressable(string name, string path)
+        {
+            if (path.StartsWith("Packages/lfo.editor"))
+            {
+                return;
+            }
+
+            AddressablesTools.MakeAddressable(
+                path,
+                name,
+                AssetsLabel
+            );
         }
     }
 }

@@ -12,6 +12,45 @@ namespace LFO.Editor.Utility
         private static ILogger Logger => ServiceProvider.GetService<ILogger>();
         private static IAssetManager AssetManager => ServiceProvider.GetService<IAssetManager>();
 
+        public static LFOConfig GetConfigFromPlume(LFOThrottleDataMasterGroup group, string partName)
+        {
+            var config = new LFOConfig();
+            if (partName != null)
+            {
+                config.PartName = partName;
+            }
+
+            config.PlumeConfigs = new Dictionary<string, List<PlumeConfig>>();
+
+            foreach (var throttleData in group.GetComponentsInChildren<LFOThrottleData>())
+            {
+                var plumeConfig = new PlumeConfig();
+                Material material = throttleData.GetComponent<Renderer>().sharedMaterial;
+                Transform transform = throttleData.transform;
+
+                plumeConfig.ShaderSettings = ShaderConfig.GenerateConfig(material);
+                plumeConfig.Position = transform.localPosition;
+                plumeConfig.Scale = transform.localScale;
+                plumeConfig.Rotation = transform.localRotation.eulerAngles;
+                plumeConfig.FloatParams = throttleData.FloatParams;
+                plumeConfig.MeshPath = throttleData.TryGetComponent(out SkinnedMeshRenderer skinnedRenderer)
+                    ? skinnedRenderer.sharedMesh.name
+                    : throttleData.GetComponent<MeshFilter>().sharedMesh.name;
+                plumeConfig.TargetGameObject = throttleData.name;
+
+                if (!config.PlumeConfigs.ContainsKey(throttleData.transform.parent.name))
+                {
+                    config.PlumeConfigs.Add(throttleData.transform.parent.name, new List<PlumeConfig>());
+                }
+
+                config.PlumeConfigs[throttleData.transform.parent.name].Add(plumeConfig);
+
+                throttleData.Config = plumeConfig;
+            }
+
+            return config;
+        }
+
         public static void CreatePlumeFromConfig(LFOConfig lfoConfig, GameObject parent)
         {
             var createdObjects = new Dictionary<string, GameObject>();
