@@ -244,7 +244,7 @@ namespace LFO.Editor.CustomEditors
 
             AddressablesTools.MakeAddressable(
                 Path.Combine(AddressablesConfigFolder, filename),
-                filename,
+                $"{Constants.AddressablesPrefix}{filename}",
                 Constants.ConfigLabel
             );
 
