@@ -13,14 +13,8 @@ namespace LFO.Shared.Configs
         [JsonRequired] public string ShaderName;
         [JsonRequired] public Dictionary<string, object> ShaderParams;
 
-        private static readonly IAssetManager AssetManager;
-        private static readonly ILogger Logger;
-
-        static ShaderConfig()
-        {
-            Logger = ServiceProvider.GetService<ILogger>();
-            AssetManager = ServiceProvider.GetService<IAssetManager>();
-        }
+        private static ILogger Logger => ServiceProvider.GetService<ILogger>();
+        private static IAssetManager AssetManager => ServiceProvider.GetService<IAssetManager>();
 
         internal void Add(string paramName, object value)
         {

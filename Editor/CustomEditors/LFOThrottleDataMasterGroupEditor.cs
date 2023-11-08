@@ -19,8 +19,6 @@ namespace LFO.Editor.CustomEditors
     public class LFOThrottleDataMasterGroupEditor : UnityEditor.Editor
     {
         private const string JsonConfigFolder = "Assets/plugin_template/assets/plumes/";
-        private const string AssetsLabel = "lfo_assets";
-        private const string ConfigsLabel = "lfo_configs";
         private const string AddressablesConfigFolder = "Assets/LFO/";
 
         private static ILogger Logger => ServiceProvider.GetService<ILogger>();
@@ -247,7 +245,7 @@ namespace LFO.Editor.CustomEditors
             AddressablesTools.MakeAddressable(
                 Path.Combine(AddressablesConfigFolder, filename),
                 filename,
-                ConfigsLabel
+                Constants.ConfigLabel
             );
 
             foreach (PlumeConfig plumeConfig in config.PlumeConfigs.Values.SelectMany(item => item))
@@ -274,7 +272,7 @@ namespace LFO.Editor.CustomEditors
             AddressablesTools.MakeAddressable(
                 path,
                 name,
-                AssetsLabel
+                Constants.AssetLabel
             );
         }
     }
