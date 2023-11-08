@@ -274,7 +274,7 @@ namespace LFO.Editor.CustomEditors
 
             AddressablesTools.MakeAddressable(
                 path,
-                name,
+                $"{Constants.AddressablesPrefix}{name}",
                 Constants.AssetLabel
             );
         }
