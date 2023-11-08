@@ -113,6 +113,8 @@ namespace LFO.Editor.Utility
 
             foreach (GameObject rootObject in rootObjects)
             {
+                rootObject.transform.localRotation *= Quaternion.Euler(270, 0, 0);
+
                 var masterGroup = rootObject!.AddComponent<LFOThrottleDataMasterGroup>();
                 masterGroup.GroupThrottle = 100;
                 masterGroup.GroupAtmo = 1;
