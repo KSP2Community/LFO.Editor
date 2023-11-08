@@ -53,12 +53,6 @@ namespace LFO.Editor.Services
                 foundPath = path;
             }
 
-            if (foundPath == null)
-            {
-                Logger.LogError($"No asset with type {typeof(T).Name} found for the name {name}.");
-                return null;
-            }
-
             return foundPath;
         }
 
