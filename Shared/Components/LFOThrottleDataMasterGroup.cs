@@ -15,7 +15,7 @@ namespace LFO.Shared.Components
         public List<LFOThrottleData> ThrottleDatas = new();
         public bool OverrideControls;
         public bool Active;
-        public bool UseAddressables;
+        public bool UseAddressables = true;
         [Range(0, ThrottleMax)] public float GroupThrottle;
         [Range(0, AtmoMax)] public float GroupAtmo;
 

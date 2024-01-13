@@ -1,12 +1,12 @@
 {
   "name": "lfo.editor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "LFO Editor Tools",
   "description": "This package contains tools for the creation of custom engine plumes for KSP2.",
   "unity": "2022.3",
   "unityRelease": "5f1",
   "documentationUrl": "https://github.com/KSP2Community/LFO",
-  "licensesUrl": "https://raw.githubusercontent.com/KSP2Community/LFO/main/COPYING",
+  "licensesUrl": "https://raw.githubusercontent.com/KSP2Community/LFO/main/LICENSE",
   "keywords": [
     "parts",
     "ksp2",
