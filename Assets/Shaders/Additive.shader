@@ -47,17 +47,20 @@ Shader "LFO/Additive"
     }
     SubShader
     {
-		Tags{ "Queue" = "Transparent" "RenderType" = "Transparent" "IgnoreProjector" = "True" }
-		//LOD 100
+        Tags
+        {
+            "Queue" = "Transparent" "RenderType" = "Transparent" "IgnoreProjector" = "True"
+        }
+        //LOD 100
 
-		ZWrite Off
-		ZTest LEqual
-		Blend SrcAlpha One, One One
-		Cull OFF
+        ZWrite Off
+        ZTest LEqual
+        Blend SrcAlpha One,One One
+        Cull OFF
 
-        CGPROGRAM		
+        CGPROGRAM
         #include "UnityCG.cginc"
-        #pragma surface surf Standard noshadow noambient novertexlights nolightmap keepalpha vertex:vert
+        #pragma surface surf Lambert vertex:vert
         #pragma target 3.0
 
         sampler2D _NoiseTex;
@@ -72,7 +75,7 @@ Shader "LFO/Additive"
         float _FalloffStart;
         float _FalloffStartPosition;
         float _StartFadeIn;
-        
+
         float _Fresnel;
         float _FresnelInverted;
         float _NoiseFresnel;
@@ -80,7 +83,7 @@ Shader "LFO/Additive"
         float _LenghtwiseBrightness;
         float _Brightness;
         float _Opacity;
-        
+
         float4 _StartTint;
         float4 _EndTint;
         float _TintFalloff;
@@ -91,66 +94,64 @@ Shader "LFO/Additive"
 
         float _LenghtwisePosition;
 
-        fixed4 contrast(fixed4 col, float value){
+        fixed4 contrast(fixed4 col, float value)
+        {
             float midpoint = pow(0.5, 2.2);
             return (col - midpoint) * value + midpoint;
         }
 
-        void vert(inout appdata_full v){
-            v.vertex.xy += ((_LinearExpansion*10) * (1-v.texcoord.y)*2) * v.normal;
-            v.vertex.xy += (pow(1-v.texcoord.y,2)) *5 * _QuadraticExpansion * 5 * v.normal;
+        void vert(inout appdata_full v)
+        {
+            v.vertex.xy += ((_LinearExpansion * 10) * (1 - v.texcoord.y) * 2) * v.normal;
+            v.vertex.xy += (pow(1 - v.texcoord.y, 2)) * 5 * _QuadraticExpansion * 5 * v.normal;
             v.vertex.z += _LenghtwisePosition;
         }
 
-	    struct Input
-	    {
-	    	float2 uv_NoiseTex;
-	    	float3 viewDir;
-	    	float4 color : COLOR; 
-	    	float3 worldNormal;
-	    };
+        struct Input
+        {
+            float2 uv_NoiseTex;
+            float3 viewDir;
+            float4 color : COLOR;
+            float3 worldNormal;
+        };
 
-	    void surf(Input IN, inout SurfaceOutputStandard o){
-               fixed4 noise = tex2D(_NoiseTex, (IN.uv_NoiseTex * _Tilling.xy) + ((_Speed.xy * _Time.y) + _Seed));
-               noise = contrast(noise, _NoiseContrast);
-               noise = lerp(.5, noise, _Noise);
+        void surf(Input IN, inout SurfaceOutput o)
+        {
+            fixed4 noise = tex2D(_NoiseTex, (IN.uv_NoiseTex * _Tilling.xy) + ((_Speed.xy * _Time.y) + _Seed));
+            noise = contrast(noise, _NoiseContrast);
+            noise = lerp(.5, noise, _Noise);
 
-               float fadeOut = pow(IN.uv_NoiseTex.y, _Falloff);
-               float fadeIn = saturate(pow(pow(mad(1-IN.uv_NoiseTex.y, .25, .75), _FalloffStart), _StartFadeIn));
-               float fade = fadeOut * fadeIn;
+            float fadeOut = pow(IN.uv_NoiseTex.y, _Falloff);
+            float fadeIn = saturate(pow(pow(mad(1 - IN.uv_NoiseTex.y, .25, .75), _FalloffStart), _StartFadeIn));
+            float fade = fadeOut * fadeIn;
 
-               float viewDot = dot(IN.viewDir, IN.worldNormal);
+            float viewDot = dot(IN.viewDir, IN.worldNormal);
 
-               if(viewDot < 0)
-                   viewDot *= -1;
+            if (viewDot < 0)
+                viewDot *= -1;
 
-               float fresnelOut =saturate(pow(smoothstep(0,1,viewDot), _Fresnel));
-               float fresnelIn =  saturate(pow(smoothstep(1,0,viewDot), _FresnelInverted));
-               float fresnel = fresnelOut * fresnelIn;
-               float fadedNoise = lerp(noise, .5, fade);
+            float fresnelOut = saturate(pow(smoothstep(0, 1, viewDot), _Fresnel));
+            float fresnelIn = saturate(pow(smoothstep(1, 0, viewDot), _FresnelInverted));
+            float fresnel = fresnelOut * fresnelIn;
+            float fadedNoise = lerp(noise, .5, fade);
 
-               float4 col = fresnel;
-               col *= fade;
+            float4 col = fresnel;
+            col *= fade;
 
-               col *= pow(fadedNoise, mad(_Noise, .5, 1-fadedNoise)*_NoiseFresnel) * fadedNoise;
-               col *= _LenghtwiseBrightness * IN.uv_NoiseTex.y;
-               col *= _Brightness;
+            col *= pow(fadedNoise, mad(_Noise, .5, 1 - fadedNoise) * _NoiseFresnel) * fadedNoise;
+            col *= _LenghtwiseBrightness * IN.uv_NoiseTex.y;
+            col *= _Brightness * .65;
 
-               float4 tint = lerp(_EndTint,_StartTint, pow(mad(fresnelOut,.5,.5) * fade, _TintFalloff));
-               
-               col *= tint;
+            float4 tint = lerp(_EndTint, _StartTint, pow(mad(fresnelOut, .5, .5) * fade, _TintFalloff));
 
-               col *= _Opacity;
-               col = saturate(col);
+            col *= tint;
 
-               o.Emission = col * IN.color.rgb;
-               o.Albedo = 0;
-               o.Metallic = 0;
-               o.Smoothness = 0;
-               o.Alpha = col.a;
-           }
+            col *= _Opacity;
+            col = saturate(col);
 
-
+            o.Emission = col * IN.color.rgb;
+            o.Albedo = 0;
+        }
         ENDCG
     }
 }
